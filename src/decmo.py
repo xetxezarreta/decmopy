@@ -19,8 +19,8 @@ from jmetal.util.replacement import (
     RankingAndDensityEstimatorReplacement,
     RemovalPolicyType,
 )
-from jmetal.util.solutions import read_solutions
-from jmetal.util.solutions.comparator import Comparator, DominanceComparator
+from jmetal.util.solution import read_solutions
+from jmetal.util.comparator import Comparator, DominanceComparator
 
 S = TypeVar("S")
 R = TypeVar("R")
