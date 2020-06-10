@@ -25,14 +25,6 @@ from jmetal.util.comparator import Comparator, DominanceComparator
 S = TypeVar("S")
 R = TypeVar("R")
 
-"""
-.. module:: DECMO_VerCZ
-   :platform: Windows
-   :synopsis: DECMO algorithm implementation.
-
-.. moduleauthor:: Joseba Martin Garcia <joseba.martin@alumni.mondragon.edu>
-"""
-
 
 class DECMO(Algorithm[S, R]):
     def __init__(
@@ -64,11 +56,11 @@ class DECMO(Algorithm[S, R]):
         pool_2_size = self.population_size
 
         selection_operator_1 = BinaryTournamentSelection()
-        selection_operator_2 = DifferentialEvolutionSelection()
         crossover_operator_1 = SBXCrossover(1.0, 20.0)
         mutation_operator_1 = PolynomialMutation(
             1.0 / self.problem.number_of_variables, 20.0
         )
+        selection_operator_2 = DifferentialEvolutionSelection()
         crossover_operator_2 = DifferentialEvolutionCrossover(0.2, 0.5, 0.5)
 
         dominance = DominanceComparator()
