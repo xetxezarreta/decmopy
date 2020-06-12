@@ -90,11 +90,12 @@ class DECMO(Algorithm[S, R]):
         mix = self.mix_interval
 
         problem = self.problem
-        problem.reference_front = read_solutions(
-            filename="../../resources/reference_front/" + problem.get_name() + ".3D.pf"
-        )
+        #problem.reference_front = read_solutions(
+        #    filename="../../resources/reference_front/" + problem.get_name() + ".3D.pf"
+        #)
 
-        h = HyperVolume(reference_point=[1, 1, 1])
+        #h = HyperVolume(reference_point=[1, 1, 1])
+        h = HyperVolume(reference_point=[1, 1])
 
         initial_population = True
 
@@ -108,7 +109,7 @@ class DECMO(Algorithm[S, R]):
                 for i in range(pool_1_size):
                     parent_1[0] = selection_operator_1.execute(pool_1)
                     parent_1[1] = selection_operator_1.execute(pool_1)
-
+                    
                     child_1: FloatSolution = crossover_operator_1.execute(parent_1)[0]
                     child_1 = mutation_operator_1.execute(child_1)
 
@@ -122,7 +123,7 @@ class DECMO(Algorithm[S, R]):
 
                     crossover_operator_2.current_individual = pool_2[i]
                     child_2 = crossover_operator_2.execute(parent_2)
-                    child_2 = problem.evaluate(child_2)
+                    child_2 = problem.evaluate(child_2[0])
 
                     evaluations += 1
 
@@ -164,7 +165,7 @@ class DECMO(Algorithm[S, R]):
                         combi[int(pool_1_size / 10) : len(combi)],
                     )
 
-                    print("Sizes: ", len(pool_1) + len(combi), len(pool_2) + len(combi))
+                    print("Sizes: ", len(pool_1) + len(combi), len(pool_2) + len(combi), '\n')
 
                     pool_1 = self.r.replace(pool_1, combi)
 
@@ -175,16 +176,12 @@ class DECMO(Algorithm[S, R]):
 
             iterations += 1
 
-            hval_1 = h.compute(pool_1)
-            hval_2 = h.compute(pool_2)
-            print(
-                "Hypervolume: "
-                + str(iterations)
-                + " - "
-                + str(hval_1)
-                + " - "
-                + str(hval_2)
-            )
+
+            hval_1 = h.compute([s.objectives for s in pool_1])
+            hval_2 = h.compute([s.objectives for s in pool_2])            
+            print("Iterations: ", str(iterations))
+            print("hval_1: ", str(hval_1))
+            print("hval_2: ", str(hval_2), '\n')         
 
             new_gen = int(evaluations / self.report_interval)
             if new_gen > current_gen:
@@ -194,7 +191,7 @@ class DECMO(Algorithm[S, R]):
                     combi[: (2 * pool_1_size)], combi[(2 * pool_1_size) :]
                 )
 
-                hval = h.compute(combi)
+                hval = h.compute([s.objectives for s in combi])
                 for i in range(current_gen, new_gen, 1):
                     generational_hv.append(hval)
 
