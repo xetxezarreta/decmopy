@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="jmetalpy",
+    name="decmopy",
     version="1.0",
     author="Xabier Etxezarreta",
     description="Python implementation of DECMO algorithms inside the JMetalPy framework",
