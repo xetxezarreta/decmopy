@@ -1,9 +1,4 @@
-import sys
-
-sys.path.append("../decmopy")
-
 from decmopy.decmo import DECMO
-
 from jmetal.problem import ZDT1
 from jmetal.util.solution import read_solutions
 
