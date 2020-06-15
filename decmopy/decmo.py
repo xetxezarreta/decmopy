@@ -1,5 +1,5 @@
 import random
-from typing import TypeVar, List
+from typing import List, TypeVar
 
 from jmetal.config import store
 from jmetal.core.algorithm import Algorithm
@@ -7,12 +7,13 @@ from jmetal.core.problem import Problem
 from jmetal.core.quality_indicator import HyperVolume
 from jmetal.core.solution import FloatSolution
 from jmetal.operator import (
-    SBXCrossover,
-    PolynomialMutation,
     BinaryTournamentSelection,
     DifferentialEvolutionCrossover,
+    PolynomialMutation,
+    SBXCrossover,
 )
 from jmetal.operator.selection import DifferentialEvolutionSelection
+from jmetal.util.comparator import Comparator, DominanceComparator
 from jmetal.util.density_estimator import CrowdingDistance
 from jmetal.util.ranking import FastNonDominatedRanking
 from jmetal.util.replacement import (
@@ -20,7 +21,6 @@ from jmetal.util.replacement import (
     RemovalPolicyType,
 )
 from jmetal.util.solution import read_solutions
-from jmetal.util.comparator import Comparator, DominanceComparator
 
 S = TypeVar("S")
 R = TypeVar("R")
