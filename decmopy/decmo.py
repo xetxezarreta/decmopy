@@ -95,7 +95,7 @@ class DECMO(Algorithm[S, R]):
         # )
 
         # h = HyperVolume(reference_point=[1, 1, 1])
-        h = HyperVolume(reference_point=[1, 1])
+        h = HyperVolume(reference_point=[1, 1, 1])
 
         initial_population = True
 

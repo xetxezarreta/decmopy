@@ -1,20 +1,33 @@
-from decmopy.decmo import DECMO
+import sys
+
+sys.path.append("./decmopy")
+from decmo import DECMO
 from jmetal.problem import ZDT1
+from jmetal.problem.multiobjective import dtlz, zdt
 from jmetal.util.solution import read_solutions
 
 
+def create_problem(problem):
+    p = problem()
+    p.reference_front = read_solutions(
+        filename="./resources/" + p.__class__.__name__ + ".pf"
+    )
+    return p
+
+
 def main():
-    problem = ZDT1()
-    problem.reference_front = read_solutions(filename="./resources/ZDT1.pf")
+    problems = [
+        # ZTD
+        create_problem(zdt.ZDT1)
+    ]
 
-    algorithm = DECMO(problem)
-    algorithm.run()
-    front = algorithm.get_result()
-
-    print(f"Algorithm: ${algorithm.get_name()}")
-    print(f"Problem: ${problem.get_name()}")
-    print(f"Computing time: ${algorithm.total_computing_time}")
-    print(front)
+    for problem in problems:
+        algorithm = DECMO(problem)
+        algorithm.run()
+        front = algorithm.get_result()
+        print(f"Algorithm: ${algorithm.get_name()}")
+        print(f"Problem: ${problem.get_name()}")
+        print(f"Computing time: ${algorithm.total_computing_time}")
 
 
 if __name__ == "__main__":
