@@ -218,24 +218,3 @@ class DECMO(Algorithm[S, R]):
 
     def get_name(self) -> str:
         return "DECMO"
-
-    def create_initial_solutions(self) -> List[S]:
-        pass
-
-    def evaluate(self, solutions: List[S]) -> List[S]:
-        pass
-
-    def stopping_condition_is_met(self) -> bool:
-        pass
-
-    def get_observable_data(self) -> dict:
-        pass
-
-    def init_progress(self) -> None:
-        pass
-
-    def step(self) -> None:
-        pass
-
-    def update_progress(self):
-        pass
