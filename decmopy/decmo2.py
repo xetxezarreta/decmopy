@@ -1,5 +1,6 @@
 from typing import List, TypeVar
 from jmetal.core.algorithm import Algorithm
+from jmetal.core.solution import FloatSolution
 from jmetal.util.ranking import FastNonDominatedRanking
 from jmetal.util.density_estimator import CrowdingDistance
 from jmetal.util.replacement import (
@@ -13,6 +14,24 @@ from jmetal.operator import (
     SBXCrossover,
 )
 from jmetal.operator.selection import DifferentialEvolutionSelection
+
+
+class DirectionRec:
+    def __init__(
+        self,
+        id: int,
+        weigh_vector: List[float],
+        curr_sol: FloatSolution,
+        fitness_value: float,
+        nfeSinceLastUpdate: int,
+    ):
+        super().__init__()
+        self.id = id
+        self.weigh_vector = weigh_vector
+        self.curr_sol = curr_sol
+        self.fitness_value = fitness_value
+        self.nfeSinceLastUpdate = nfeSinceLastUpdate
+
 
 S = TypeVar("S")
 R = TypeVar("R")
@@ -86,6 +105,11 @@ class DECMO2(Algorithm[S, R]):
         for i in range(pool_2_size):
             pool_2.append(self.problem.create_solution())
             pool_2[i] = self.problem.evaluate(pool_2[i])
+        # poolA
+        pool_A: List[FloatSolution] = []
+        while True:  # aaa
+            pool_A.append(self.problem.create_solution())
+            pool_A[i] = self.problem.evaluate(pool_A[i])
 
     def get_result(self) -> R:
         return self.solutions
