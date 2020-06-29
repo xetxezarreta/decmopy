@@ -107,7 +107,7 @@ class DECMO2(Algorithm[S, R]):
             pool_2[i] = self.problem.evaluate(pool_2[i])
         # poolA
         pool_A: List[FloatSolution] = []
-        while True:  # implement this
+        while True:  # implement
             pool_A.append(self.problem.create_solution())
             pool_A[i] = self.problem.evaluate(pool_A[i])
 
