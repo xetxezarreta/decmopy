@@ -1,12 +1,12 @@
 import sys
 
+sys.path.append("./decmopy")
+
 from jmetal.problem import ZDT1
 from jmetal.problem.multiobjective import dtlz, zdt
 from jmetal.util.solution import read_solutions
 
 from decmo import DECMO
-
-sys.path.append("./decmopy")
 
 
 def create_problem(problem):
