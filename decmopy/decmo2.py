@@ -1,7 +1,10 @@
 from typing import List, TypeVar
+from jmetal.config import store
 from jmetal.core.algorithm import Algorithm
+from jmetal.core.problem import Problem
 from jmetal.core.solution import FloatSolution
 from jmetal.util.ranking import FastNonDominatedRanking
+from jmetal.util.comparator import Comparator
 from jmetal.util.density_estimator import CrowdingDistance
 from jmetal.util.replacement import (
     RankingAndDensityEstimatorReplacement,
