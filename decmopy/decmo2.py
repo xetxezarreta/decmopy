@@ -63,24 +63,24 @@ class DECMO2(Algorithm[S, R]):
         )
 
     def run(self) -> List[S]:
-        # Selection operator 1
+        # selection operator 1
         selection_operator_1 = BinaryTournamentSelection()
-        # Selection operator 2
+        # selection operator 2
         selection_operator_2 = DifferentialEvolutionSelection()
-        # Crossover operator 1
+        # crossover operator 1
         crossover_operator_1 = SBXCrossover(1.0, 20.0)
-        # Crossover operator 2
+        # crossover operator 2
         crossover_operator_2 = DifferentialEvolutionCrossover(0.2, 0.5, 0.5)
-        # Crossover operator 3
+        # crossover operator 3
         crossover_operator_3 = DifferentialEvolutionCrossover(1.0, 0.5, 0.5)
-        # Mutation operator 1
+        # mutation operator 1
         mutation_operator_1 = PolynomialMutation(
             1.0 / self.problem.number_of_variables, 20.0
         )
-        # Array that stores the "generational" HV quality
+        # array that stores the "generational" HV quality
         generational_hv: List[float] = []
 
-        # Initialize some local and global variables
+        # initialize some local and global variables
         pool_1: List[FloatSolution] = []
         pool_2: List[FloatSolution] = []
         current_gen = 0
