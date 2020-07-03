@@ -1,3 +1,4 @@
+import numpy as np
 from typing import List, TypeVar
 from jmetal.config import store
 from jmetal.core.algorithm import Algorithm
@@ -61,6 +62,13 @@ class DECMO2(Algorithm[S, R]):
         self.r = RankingAndDensityEstimatorReplacement(
             ranking, density_estimator, RemovalPolicyType.SEQUENTIAL
         )
+    
+    def __compute_euclidean_distance(self, vector1: np.array, vector2: np.array ) -> float:
+        dist = np.linalg.norm(vector1 - vector2)
+        return dist
+
+    def __create_uniform_weights(self):
+        pass
 
     def run(self) -> List[S]:
         # selection operator 1
