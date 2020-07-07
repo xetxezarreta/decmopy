@@ -1,3 +1,4 @@
+import sys
 import numpy as np
 from typing import List, TypeVar
 from jmetal.config import store
@@ -18,6 +19,9 @@ from jmetal.operator import (
     SBXCrossover,
 )
 from jmetal.operator.selection import DifferentialEvolutionSelection
+
+from .distribution_gen import DistribGen
+from .comp_rec import CompRec
 
 
 class DirectionRec:
@@ -49,7 +53,7 @@ class DECMO2(Algorithm[S, R]):
         max_iterations: int = 250,
         individual_population_size: int = 100,
         report_interval: int = 100,
-        dataDirectory: str = "weigths/",
+        dataDirectory: str = "./weigths",
     ):
         super().__init__()
         self.problem = problem
@@ -72,7 +76,7 @@ class DECMO2(Algorithm[S, R]):
         return dist
 
     def __create_uniform_weights(self, dirArchiveSize: int, nrOfObjectives: int):
-        lmdb = []
+        lmdb: List[float] = []
 
         if nrOfObjectives == 2 and dirArchiveSize < 500:
             for n in range(dirArchiveSize):
@@ -83,8 +87,47 @@ class DECMO2(Algorithm[S, R]):
                 print(lmdb[n][1])
         else:
             dataFileName = "W" + nrOfObjectives + "D_" + dirArchiveSize + ".dat"
+            data_path = self.dataDirectory + "/" + dataFileName
             print(dataFileName)
-            print(self.dataDirectory + dataFileName)
+            print(data_path)
+
+            dg = DistribGen()
+            dg.create_distribution(
+                self.problem.number_of_objectives, dirArchiveSize, data_path
+            )
+
+            try:
+                i = j = 0
+                with open(data_path) as f:
+                    # lines = f.readlines()
+                    lines = [line.rstrip() for line in f]
+
+                for line in lines:
+                    words = line.split()  # "tokenizer"
+                    j = 0
+                    for word in words:
+                        value = float(word.replace(",", "."))
+                        lmdb[i][j] = value
+                        j += 1
+                    i += 1
+            except Exception as e:
+                print(e)
+                print("initUniformWeight: failed when reading for file: " + data_path)
+        return lmdb
+    
+    def __create_directional_archive(self, lmbd: List[float]):
+        directionalArchive: List[DirectionRec] = []
+        for i in range(len(lmbd)):
+            di = DirectionRec(i, lmbd[i], None, sys.float_info.max, 0)
+            directionalArchive.append(di)
+        return directionalArchive
+
+    def __create_neighbourhoods(self, dirArchive: List[DirectionRec], neighborhood_size: int):
+        neighbourhoods: List[List[int]] = []
+
+        for di1 in dirArchive:
+            distToNeighbour: List[CompRec] = []
+            # aqui
 
     def run(self) -> List[S]:
         # selection operator 1
@@ -107,8 +150,6 @@ class DECMO2(Algorithm[S, R]):
         # initialize some local and global variables
         pool_1: List[FloatSolution] = []
         pool_2: List[FloatSolution] = []
-        current_gen = 0
-        directionalArchiveSize = 2 * self.population_size
 
         # size of elite subset used for fitness sharing between subpopulations
         nrOfDirectionalSolutionsToEvolve = self.population_size / 5
@@ -124,6 +165,14 @@ class DECMO2(Algorithm[S, R]):
             + " - "
             + str(self.mix_interval)
         )
+
+        current_gen = 0
+        directionalArchiveSize = 2 * self.population_size
+        weights = self.__create_uniform_weights(directionalArchiveSize, self.problem.number_of_objectives)
+
+        directionalArchive = self.__create_directional_archive(weights)
+
+
 
         # Create the initial pools
         # pool1
