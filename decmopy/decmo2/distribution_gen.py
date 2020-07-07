@@ -1,4 +1,5 @@
 import random
+from pathlib import Path
 from typing import List
 
 class DistribGen():
@@ -8,14 +9,16 @@ class DistribGen():
         stop = False
 
         while not stop:
-            remaining = self.__create_distrib(dimensions, num_samples, steps, filename)
+            remaining = self.__create_distrib(dimensions, num_samples, steps, True, filename)
             if remaining > 0.0:
                 stop = True
             else:
                 steps += 1
+        print("Required steps: " + str(steps) + "\n" + "Rmoved samples: " + str("%.2f" % remaining) + "%")
+        self.__create_distrib(dimensions, num_samples, steps, False, filename)
 
 
-    def __create_distrib(self, dimensions: int, num_samples: int, steps: int, filename: str):
+    def __create_distrib(self, dimensions: int, num_samples: int, steps: int, mockRun: bool, filename: str):
         distrib : List[int] = []
         final_distrib : List[float] = []
 
@@ -62,6 +65,30 @@ class DistribGen():
         while len(distrib) > num_samples:
             ind = random.randint(0, len(distrib))
             distrib.remove(ind)
+
+        if not mockRun:
+            try:
+                path = Path(filename)
+                if not path.parent.exists():
+                    path.parent.mkdir(parents=True, exist_ok=True)
+                    if not path.parent.exists():
+                        print("Could not create directory path: ")
+                if not path.exists():
+                    path.touch()
+
+                for sample in distrib:
+                    s = ""
+                    finalSample: List[int] = []
+                    for i in range(len(sample)):
+                        finalSample.append((sample[i] * 1.0) / steps)
+                        s += str("%.2f" % finalSample[i])
+                        s += " "
+                    final_distrib.append(finalSample)
+                    with open(path, 'a') as file:
+                        file.write(s + "\n")
+
+            except Exception as e:
+                print(e)
 
         percent_rem = (1.0 - (len(distrib) * 1.0 / originalSetSize)) * 100.0
         return percent_rem
