@@ -20,25 +20,9 @@ from jmetal.operator import (
 )
 from jmetal.operator.selection import DifferentialEvolutionSelection
 
+from .direction_rec import DirectionRec
 from .distribution_gen import DistribGen
 from .comp_rec import CompRec
-
-
-class DirectionRec:
-    def __init__(
-        self,
-        id: int,
-        weigh_vector: List[float],
-        curr_sol: FloatSolution,
-        fitness_value: float,
-        nfeSinceLastUpdate: int,
-    ):
-        super().__init__()
-        self.id = id
-        self.weigh_vector = weigh_vector
-        self.curr_sol = curr_sol
-        self.fitness_value = fitness_value
-        self.nfeSinceLastUpdate = nfeSinceLastUpdate
 
 
 S = TypeVar("S")
