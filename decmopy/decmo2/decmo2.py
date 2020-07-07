@@ -1,4 +1,4 @@
-import sys
+import sys, math
 import numpy as np
 from typing import List, TypeVar
 from jmetal.config import store
@@ -69,11 +69,22 @@ class DECMO2(Algorithm[S, R]):
             ranking, density_estimator, RemovalPolicyType.SEQUENTIAL
         )
 
-    def __compute_euclidean_distance(
-        self, vector1: np.array, vector2: np.array
-    ) -> float:
-        dist = np.linalg.norm(vector1 - vector2)
-        return dist
+        self.MIN_VALUES = 0
+        self.MAX_VALUES = 1
+        min_values: List[float] = []
+        max_values: List[float] = []
+        for _ in range(problem.number_of_objectives):
+            min_values.append(sys.float_info.max)
+            max_values.append(sys.float_info.min)
+        self.extreme_values: List[List[float]] = []
+        self.extreme_values.append(min_values)
+        self.extreme_values.append(max_values)
+
+    def __compute_euclidean_distance(self, vector1: List[float], vector2: List[float]):
+        value = 0.0
+        for i in range(len(vector1)):
+            value += (vector1[i] - vector2[i]) * (vector1[i] - vector2[i])
+        return math.sqrt(value)
 
     def __create_uniform_weights(self, dirArchiveSize: int, nrOfObjectives: int):
         lmdb: List[float] = []
@@ -114,7 +125,7 @@ class DECMO2(Algorithm[S, R]):
                 print(e)
                 print("initUniformWeight: failed when reading for file: " + data_path)
         return lmdb
-    
+
     def __create_directional_archive(self, lmbd: List[float]):
         directionalArchive: List[DirectionRec] = []
         for i in range(len(lmbd)):
@@ -122,12 +133,38 @@ class DECMO2(Algorithm[S, R]):
             directionalArchive.append(di)
         return directionalArchive
 
-    def __create_neighbourhoods(self, dirArchive: List[DirectionRec], neighborhood_size: int):
+    def __create_neighbourhoods(
+        self, dirArchive: List[DirectionRec], neighborhood_size: int
+    ):
         neighbourhoods: List[List[int]] = []
 
         for di1 in dirArchive:
             distToNeighbour: List[CompRec] = []
-            # aqui
+            for di2 in dirArchive:
+                if di1.id != di2.id:
+                    distToNeighbour.append(
+                        CompRec(
+                            di2.id,
+                            self.__compute_euclidean_distance(
+                                di1.weigh_vector, di2.weigh_vector
+                            ),
+                        )
+                    )
+            distToNeighbour = distToNeighbour.sort()
+            neighbourhood: List[int] = []
+            for i in range(neighborhood_size):
+                if i < len(distToNeighbour):
+                    neighbourhood.append(distToNeighbour[i].id)
+            neighbourhoods.append(neighbourhood)
+        return neighbourhoods
+
+    def __update_extreme_values(self, sol: FloatSolution):
+        for i in range(sol.number_of_objectives):
+            objValue = sol.objectives[i]
+            if objValue < self.extreme_values[self.MIN_VALUES][i]:
+                self.extreme_values[self.MIN_VALUES][i] = objValue
+            if objValue > self.extreme_values[self.MAX_VALUES][i]:
+                self.extreme_values[self.MAX_VALUES][i] = objValue
 
     def run(self) -> List[S]:
         # selection operator 1
@@ -166,13 +203,20 @@ class DECMO2(Algorithm[S, R]):
             + str(self.mix_interval)
         )
 
+        evaluations = 0
         current_gen = 0
         directionalArchiveSize = 2 * self.population_size
-        weights = self.__create_uniform_weights(directionalArchiveSize, self.problem.number_of_objectives)
+        weights = self.__create_uniform_weights(
+            directionalArchiveSize, self.problem.number_of_objectives
+        )
 
         directionalArchive = self.__create_directional_archive(weights)
+        neighbourhoods = self.__create_neighbourhoods(
+            directionalArchive, self.problem.number_of_objectives
+        )
 
-
+        nrOfReplacements = 1
+        iniID = 0
 
         # Create the initial pools
         # pool1
@@ -180,6 +224,7 @@ class DECMO2(Algorithm[S, R]):
         for i in range(pool_1_size):
             pool_1.append(self.problem.create_solution())
             pool_1[i] = self.problem.evaluate(pool_1[i])
+            evaluations += 1
         # pool2
         pool_2: List[FloatSolution] = []
         for i in range(pool_2_size):

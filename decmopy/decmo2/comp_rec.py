@@ -1,5 +1,4 @@
-
-class CompRec():
+class CompRec:
     def __init__(self, id: int, value: float):
         self.id = id
         self.value = value
