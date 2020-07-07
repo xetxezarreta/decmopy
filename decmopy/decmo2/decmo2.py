@@ -49,12 +49,14 @@ class DECMO2(Algorithm[S, R]):
         max_iterations: int = 250,
         individual_population_size: int = 100,
         report_interval: int = 100,
+        dataDirectory: str = "weigths/",
     ):
         super().__init__()
         self.problem = problem
         self.population_size = individual_population_size
         self.max_iterations = max_iterations
         self.report_interval = report_interval
+        self.dataDirectory = dataDirectory
         self.mix_interval = 1
         """Replacement"""
         ranking = FastNonDominatedRanking(dominance_comparator)
@@ -69,8 +71,20 @@ class DECMO2(Algorithm[S, R]):
         dist = np.linalg.norm(vector1 - vector2)
         return dist
 
-    def __create_uniform_weights(self):
-        pass
+    def __create_uniform_weights(self, dirArchiveSize: int, nrOfObjectives: int):
+        lmdb = []
+
+        if nrOfObjectives == 2 and dirArchiveSize < 500:
+            for n in range(dirArchiveSize):
+                a = 1.0 * n / (dirArchiveSize - 1)
+                lmdb[n][0] = a
+                lmdb[n][1] = 1 - a
+                print(lmdb[n][0])
+                print(lmdb[n][1])
+        else:
+            dataFileName = "W" + nrOfObjectives + "D_" + dirArchiveSize + ".dat"
+            print(dataFileName)
+            print(self.dataDirectory + dataFileName)
 
     def run(self) -> List[S]:
         # selection operator 1
