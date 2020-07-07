@@ -222,20 +222,41 @@ class DECMO2(Algorithm[S, R]):
         # pool1
         pool_1: List[FloatSolution] = []
         for i in range(pool_1_size):
-            pool_1.append(self.problem.create_solution())
-            pool_1[i] = self.problem.evaluate(pool_1[i])
+            new_solution = self.problem.create_solution()
+            new_solution = self.problem.evaluate(new_solution)
             evaluations += 1
+            pool_1.append(new_solution)            
+
+            self.__update_extreme_values(new_solution)
+            dr = directionalArchive[iniID]
+            dr.curr_sol = new_solution
+            iniID += 1
         # pool2
         pool_2: List[FloatSolution] = []
         for i in range(pool_2_size):
-            pool_2.append(self.problem.create_solution())
-            pool_2[i] = self.problem.evaluate(pool_2[i])
+            new_solution = self.problem.create_solution()
+            new_solution = self.problem.evaluate(new_solution)
+            evaluations += 1
+            pool_2.append(new_solution) 
+
+            self.__update_extreme_values(new_solution)
+            dr = directionalArchive[iniID]
+            dr.curr_sol = new_solution
+            iniID += 1
         # directional archive initialization
         pool_A: List[FloatSolution] = []
-        iniId = len(pool_1) + len(pool_2)
-        while iniId < directionalArchiveSize:  # implement this
-            pool_A.append(self.problem.create_solution())
-            pool_A[i] = self.problem.evaluate(pool_A[i])
+        while iniID < directionalArchiveSize:
+            new_solution = self.problem.create_solution()
+            new_solution = self.problem.evaluate(new_solution)
+            evaluations += 1
+            pool_A.append(new_solution) 
+
+            self.__update_extreme_values(new_solution)
+            dr = directionalArchive[iniID]
+            dr.curr_sol = new_solution
+            iniID += 1
+        
+        # continue here
 
     def get_result(self) -> R:
         return self.solutions
