@@ -1,7 +1,21 @@
+import random
 from typing import List
 
 class DistribGen():
-    def create_distribution(self, dimensions: int, num_samples: int, steps: int, mock_run: bool, filename: str):
+    def create_distribution(self, dimensions: int, num_samples: int, filename: str):
+        steps = 2
+        remaining = 0.0
+        stop = False
+
+        while not stop:
+            remaining = self.__create_distrib(dimensions, num_samples, steps, filename)
+            if remaining > 0.0:
+                stop = True
+            else:
+                steps += 1
+
+
+    def __create_distrib(self, dimensions: int, num_samples: int, steps: int, filename: str):
         distrib : List[int] = []
         final_distrib : List[float] = []
 
@@ -24,16 +38,31 @@ class DistribGen():
                 sum = 0
                 for i in range(len(sample)):
                     sum += sample[i]
-            for i in range(steps):
-                if (modifColumn + 1) < dimensions:
-                    if (sum + i) <= steps:
-                        newSample : List[int] = []
-                        
+                for i in range(steps):
+                    if (modifColumn + 1) < dimensions:
+                        if (sum + i) <= steps:
+                            newSample : List[int] = []
+                            newSample.extend(sample)
+                            newSample[modifColumn] = i
+                            newDistrib.append(newSample)
+                            addedNewSamples = True
+                    else:
+                        if (sum + i) == steps:
+                            newSample : List[int] = []
+                            newSample.extend(sample)
+                            newSample[modifColumn] = i
+                            newDistrib.append(newSample)
+                            addedNewSamples = True
+            distrib = newDistrib
+            modifColumn += 1
+            if (modifColumn + 1) > dimensions:
+                addedNewSamples = False
+        
+        originalSetSize = len(distrib)
+        while len(distrib) > num_samples:
+            ind = random.randint(0, len(distrib))
+            distrib.remove(ind)
 
-
-
-
-
-
-
+        percent_rem = (1.0 - (len(distrib) * 1.0 / originalSetSize)) * 100.0
+        return percent_rem
     
