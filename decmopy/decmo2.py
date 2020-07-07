@@ -92,11 +92,15 @@ class DECMO2(Algorithm[S, R]):
         pool_1: List[FloatSolution] = []
         pool_2: List[FloatSolution] = []
         current_gen = 0
+        directionalArchiveSize = 2 * self.population_size
 
         # size of elite subset used for fitness sharing between subpopulations
         nrOfDirectionalSolutionsToEvolve = self.population_size / 5
+        # subpopulation 1
         pool_1_size = self.population_size - (nrOfDirectionalSolutionsToEvolve / 2)
+        # subpopulation 2
         pool_2_size = self.population_size - (nrOfDirectionalSolutionsToEvolve / 2)
+
         print(
             str(pool_1_size)
             + " - "
@@ -104,7 +108,7 @@ class DECMO2(Algorithm[S, R]):
             + " - "
             + str(self.mix_interval)
         )
-
+    
         # Create the initial pools
         # pool1
         pool_1: List[FloatSolution] = []
@@ -116,9 +120,10 @@ class DECMO2(Algorithm[S, R]):
         for i in range(pool_2_size):
             pool_2.append(self.problem.create_solution())
             pool_2[i] = self.problem.evaluate(pool_2[i])
-        # poolA
+        # directional archive initialization
         pool_A: List[FloatSolution] = []
-        while True:  # implement this
+        iniId = len(pool_1) + len(pool_2)
+        while iniId < directionalArchiveSize:  # implement this
             pool_A.append(self.problem.create_solution())
             pool_A[i] = self.problem.evaluate(pool_A[i])
 
