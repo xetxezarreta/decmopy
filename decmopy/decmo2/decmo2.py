@@ -225,7 +225,7 @@ class DECMO2(Algorithm[S, R]):
             new_solution = self.problem.create_solution()
             new_solution = self.problem.evaluate(new_solution)
             evaluations += 1
-            pool_1.append(new_solution)            
+            pool_1.append(new_solution)
 
             self.__update_extreme_values(new_solution)
             dr = directionalArchive[iniID]
@@ -237,7 +237,7 @@ class DECMO2(Algorithm[S, R]):
             new_solution = self.problem.create_solution()
             new_solution = self.problem.evaluate(new_solution)
             evaluations += 1
-            pool_2.append(new_solution) 
+            pool_2.append(new_solution)
 
             self.__update_extreme_values(new_solution)
             dr = directionalArchive[iniID]
@@ -249,13 +249,13 @@ class DECMO2(Algorithm[S, R]):
             new_solution = self.problem.create_solution()
             new_solution = self.problem.evaluate(new_solution)
             evaluations += 1
-            pool_A.append(new_solution) 
+            pool_A.append(new_solution)
 
             self.__update_extreme_values(new_solution)
             dr = directionalArchive[iniID]
             dr.curr_sol = new_solution
             iniID += 1
-        
+
         # continue here
 
     def get_result(self) -> R:
