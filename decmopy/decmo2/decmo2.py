@@ -62,8 +62,10 @@ class DECMO2(Algorithm[S, R]):
         self.r = RankingAndDensityEstimatorReplacement(
             ranking, density_estimator, RemovalPolicyType.SEQUENTIAL
         )
-    
-    def __compute_euclidean_distance(self, vector1: np.array, vector2: np.array ) -> float:
+
+    def __compute_euclidean_distance(
+        self, vector1: np.array, vector2: np.array
+    ) -> float:
         dist = np.linalg.norm(vector1 - vector2)
         return dist
 
@@ -108,7 +110,7 @@ class DECMO2(Algorithm[S, R]):
             + " - "
             + str(self.mix_interval)
         )
-    
+
         # Create the initial pools
         # pool1
         pool_1: List[FloatSolution] = []
@@ -153,4 +155,3 @@ class DECMO2(Algorithm[S, R]):
 
     def update_progress(self):
         pass
-
