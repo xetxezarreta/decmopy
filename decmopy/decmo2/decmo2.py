@@ -561,7 +561,7 @@ class DECMO2(Algorithm[S, R]):
         improvedDistances.reverse()
 
         if isImprovement:
-            for i in range(nrOfReplacements):
+            for _ in range(nrOfReplacements):
                 j = 0
                 cdr = directionalArchive[improvedDistances[j].id]
                 cdr.curr_sol = newSolution
