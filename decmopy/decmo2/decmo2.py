@@ -65,173 +65,6 @@ class DECMO2(Algorithm[S, R]):
         self.extreme_values.append(min_values)
         self.extreme_values.append(max_values)
 
-    def __compute_euclidean_distance(self, vector1: List[float], vector2: List[float]):
-        value = 0.0
-        for i in range(len(vector1)):
-            value += (vector1[i] - vector2[i]) * (vector1[i] - vector2[i])
-        return math.sqrt(value)
-
-    def __create_uniform_weights(self, dirArchiveSize: int, nrOfObjectives: int):
-        lmdb = np.zeros(shape=(dirArchiveSize, nrOfObjectives))
-
-        if nrOfObjectives == 2 and dirArchiveSize < 500:
-            for n in range(dirArchiveSize):
-                a = 1.0 * n / (dirArchiveSize - 1)
-                lmdb[n][0] = a
-                lmdb[n][1] = 1 - a
-                print(lmdb[n][0])
-                print(lmdb[n][1])
-        else:
-            dataFileName = "W" + nrOfObjectives + "D_" + dirArchiveSize + ".dat"
-            data_path = self.dataDirectory + "/" + dataFileName
-            print(dataFileName)
-            print(data_path)
-
-            dg = DistribGen()
-            dg.create_distribution(
-                self.problem.number_of_objectives, dirArchiveSize, data_path
-            )
-
-            try:
-                i = j = 0
-                with open(data_path) as f:
-                    # lines = f.readlines()
-                    lines = [line.rstrip() for line in f]
-
-                for line in lines:
-                    words = line.split()  # "tokenizer"
-                    j = 0
-                    for word in words:
-                        value = float(word.replace(",", "."))
-                        lmdb[i][j] = value
-                        j += 1
-                    i += 1
-            except Exception as e:
-                print(e)
-                print("initUniformWeight: failed when reading for file: " + data_path)
-        return lmdb
-
-    def __create_directional_archive(self, lmbd: List[float]):
-        directionalArchive: List[DirectionRec] = []
-        for i in range(len(lmbd)):
-            di = DirectionRec(i, lmbd[i], None, sys.float_info.max, 0)
-            directionalArchive.append(di)
-        return directionalArchive
-
-    def __compute_neighbourhood_Nfe_since_last_update(
-        self,
-        neighbourhoods: List[List[int]],
-        directionalArchive: List[DirectionRec],
-        intensificationClusters: int,
-    ):
-        averageNfe: List[CompRec] = []
-        ID = 0
-
-        for neighbourhood in neighbourhoods:
-            avg = 0.0
-            for nID in neighbourhood:
-                avg += directionalArchive[nID].nfeSinceLastUpdate
-            avg /= len(neighbourhood)
-
-            averageNfe.append(CompRec(ID, avg))
-            ID += 1
-        averageNfe.sort()
-
-        result: List[int] = []
-        for i in range(intensificationClusters):
-            result.append(averageNfe[len(averageNfe) - 1 - i].id)
-        return result
-
-    def __create_neighbourhoods(
-        self, dirArchive: List[DirectionRec], neighborhood_size: int
-    ):
-        neighbourhoods: List[List[int]] = []
-
-        for di1 in dirArchive:
-            distToNeighbour: List[CompRec] = []
-            for di2 in dirArchive:
-                if di1.id != di2.id:
-                    distToNeighbour.append(
-                        CompRec(
-                            di2.id,
-                            self.__compute_euclidean_distance(
-                                di1.weigh_vector, di2.weigh_vector
-                            ),
-                        )
-                    )
-            distToNeighbour.sort()
-            neighbourhood: List[int] = []
-            for i in range(neighborhood_size):
-                if i < len(distToNeighbour):
-                    neighbourhood.append(distToNeighbour[i].id)
-            neighbourhoods.append(neighbourhood)
-        return neighbourhoods
-
-    def __update_neighbourhoods(
-        self,
-        directionalArchive: List[DirectionRec],
-        newSolution: FloatSolution,
-        nrOfReplacements: int,
-    ):
-        improvedDistances: List[CompRec] = []
-        isImprovement = False
-
-        for cdr in directionalArchive:
-            newFitnessValue = self.__evaluate_Tchebycheff_Fitness(
-                newSolution, cdr.weigh_vector
-            )
-            if newFitnessValue < cdr.fitness_value:
-                improvedDistances.append(CompRec(cdr.id, newFitnessValue))
-                isImprovement = True
-            else:
-                cdr.nfeSinceLastUpdate = cdr.nfeSinceLastUpdate + 1
-
-        improvedDistances.sort()
-        improvedDistances.reverse()
-
-        if isImprovement:
-            for i in range(nrOfReplacements):
-                j = 0
-                cdr = directionalArchive[improvedDistances[j].id]
-                cdr.curr_sol = newSolution
-                cdr.fitness_value = improvedDistances[j].value
-                cdr.nfeSinceLastUpdate = 0
-            return 1
-        return 0
-
-    def __evaluate_Tchebycheff_Fitness(
-        self, individual: FloatSolution, lmbd: List[float]
-    ):
-        max = sys.float_info.min
-
-        for i in range(self.problem.number_of_objectives):
-            diff = abs(
-                individual.objectives[i] - self.extreme_values[self.MIN_VALUES][i]
-            )
-            tcheFuncVal: float = None
-
-            if lmbd[i] == 0:
-                tcheFuncVal = 0.000001 * diff
-            else:
-                tcheFuncVal = diff * lmbd[i]
-
-            if tcheFuncVal > max:
-                max = tcheFuncVal
-
-        return max
-
-    def __update_extreme_values(self, sol: FloatSolution):
-        for i in range(sol.number_of_objectives):
-            objValue = sol.objectives[i]
-            if objValue < self.extreme_values[self.MIN_VALUES][i]:
-                self.extreme_values[self.MIN_VALUES][i] = objValue
-            if objValue > self.extreme_values[self.MAX_VALUES][i]:
-                self.extreme_values[self.MAX_VALUES][i] = objValue
-
-    def __clear_Nfe_history(self, directionalArchive: List[DirectionRec]):
-        for dr in directionalArchive:
-            dr.nfeSinceLastUpdate = 0
-
     def run(self) -> List[S]:
         # selection operator 1
         selection_operator_1 = BinaryTournamentSelection()
@@ -508,7 +341,8 @@ class DECMO2(Algorithm[S, R]):
                 print("Combi size: " + str(len(combi)))
 
                 combi = self.r.replace(
-                    combi[:nrOfDirectionalSolutionsToEvolve], combi[nrOfDirectionalSolutionsToEvolve:]
+                    combi[:nrOfDirectionalSolutionsToEvolve],
+                    combi[nrOfDirectionalSolutionsToEvolve:],
                 )
 
                 insertionRate[0] /= self.mix_interval
@@ -527,17 +361,23 @@ class DECMO2(Algorithm[S, R]):
                 )
 
                 if testRun:
-                    if (insertionRate[0] > insertionRate[1]) and (insertionRate[0] > insertionRate[2]):
+                    if (insertionRate[0] > insertionRate[1]) and (
+                        insertionRate[0] > insertionRate[2]
+                    ):
                         print("SPEA2 win - bonus run!")
-                        bonusEvals[0] = nrOfDirectionalSolutionsToEvolve  
+                        bonusEvals[0] = nrOfDirectionalSolutionsToEvolve
                         bonusEvals[1] = 0
                         bonusEvals[2] = 0
-                    if (insertionRate[1] > insertionRate[0]) and (insertionRate[1] > insertionRate[2]):
+                    if (insertionRate[1] > insertionRate[0]) and (
+                        insertionRate[1] > insertionRate[2]
+                    ):
                         print("DE win - bonus run!")
                         bonusEvals[0] = 0
                         bonusEvals[1] = nrOfDirectionalSolutionsToEvolve
                         bonusEvals[2] = 0
-                    if (insertionRate[2] > insertionRate[0]) and (insertionRate[2] > insertionRate[1]):
+                    if (insertionRate[2] > insertionRate[0]) and (
+                        insertionRate[2] > insertionRate[1]
+                    ):
                         print("Directional win - no bonus!")
                         bonusEvals[0] = 0
                         bonusEvals[1] = 0
@@ -558,12 +398,8 @@ class DECMO2(Algorithm[S, R]):
                 pool_2 = pool_2 + combi
                 print("Sizes: " + str(len(pool_1)) + " " + str(len(pool_2)))
 
-                pool_1 = self.r.replace(
-                    pool_1[:pool_1_size], pool_1[pool_1_size:]
-                )
-                pool_2 = self.r.replace(
-                    pool_2[:pool_2_size], pool_2[pool_2_size:]
-                )
+                pool_1 = self.r.replace(pool_1[:pool_1_size], pool_1[pool_1_size:])
+                pool_2 = self.r.replace(pool_2[:pool_2_size], pool_2[pool_2_size:])
 
                 self.__clear_Nfe_history(directionalArchive)
 
@@ -574,23 +410,198 @@ class DECMO2(Algorithm[S, R]):
             newGen = int(evaluations / self.report_interval)
 
             if newGen > current_gen:
-                print("Hypervolume: " + str(newGen) + " - " + str(hVal1) + " - " + str(hVal2) + " - " + str(hVal3))
+                print(
+                    "Hypervolume: "
+                    + str(newGen)
+                    + " - "
+                    + str(hVal1)
+                    + " - "
+                    + str(hVal2)
+                    + " - "
+                    + str(hVal3)
+                )
                 combi = pool_1 + pool_2 + offspringPop3
                 combi = self.r.replace(
-                    combi[:self.population_size * 2], combi[self.population_size * 2:]
+                    combi[: self.population_size * 2], combi[self.population_size * 2 :]
                 )
                 hval = h.compute([s.objectives for s in combi])
                 for j in range(current_gen, newGen):
                     generational_hv.append(hval)
                 current_gen = newGen
 
-        
-		# return the final combined non-dominated set of maximum size = (populationSize * 2)
+        # return the final combined non-dominated set of maximum size = (populationSize * 2)
         combiAll: List[FloatSolution] = [pool_1 + pool_2 + pool_A]
         combiAll = self.r.replace(
-            combiAll[:self.population_size * 2], combiAll[self.population_size * 2:]
+            combiAll[: self.population_size * 2], combiAll[self.population_size * 2 :]
         )
         return combiAll
+
+    def __compute_euclidean_distance(self, vector1: List[float], vector2: List[float]):
+        value = 0.0
+        for i in range(len(vector1)):
+            value += (vector1[i] - vector2[i]) * (vector1[i] - vector2[i])
+        return math.sqrt(value)
+
+    def __create_uniform_weights(self, dirArchiveSize: int, nrOfObjectives: int):
+        lmdb = np.zeros(shape=(dirArchiveSize, nrOfObjectives))
+
+        if nrOfObjectives == 2 and dirArchiveSize < 500:
+            for n in range(dirArchiveSize):
+                a = 1.0 * n / (dirArchiveSize - 1)
+                lmdb[n][0] = a
+                lmdb[n][1] = 1 - a
+                print(lmdb[n][0])
+                print(lmdb[n][1])
+        else:
+            dataFileName = "W" + nrOfObjectives + "D_" + dirArchiveSize + ".dat"
+            data_path = self.dataDirectory + "/" + dataFileName
+            print(dataFileName)
+            print(data_path)
+
+            dg = DistribGen()
+            dg.create_distribution(
+                self.problem.number_of_objectives, dirArchiveSize, data_path
+            )
+
+            try:
+                i = j = 0
+                with open(data_path) as f:
+                    # lines = f.readlines()
+                    lines = [line.rstrip() for line in f]
+
+                for line in lines:
+                    words = line.split()  # "tokenizer"
+                    j = 0
+                    for word in words:
+                        value = float(word.replace(",", "."))
+                        lmdb[i][j] = value
+                        j += 1
+                    i += 1
+            except Exception as e:
+                print(e)
+                print("initUniformWeight: failed when reading for file: " + data_path)
+        return lmdb
+
+    def __create_directional_archive(self, lmbd: List[float]):
+        directionalArchive: List[DirectionRec] = []
+        for i in range(len(lmbd)):
+            di = DirectionRec(i, lmbd[i], None, sys.float_info.max, 0)
+            directionalArchive.append(di)
+        return directionalArchive
+
+    def __compute_neighbourhood_Nfe_since_last_update(
+        self,
+        neighbourhoods: List[List[int]],
+        directionalArchive: List[DirectionRec],
+        intensificationClusters: int,
+    ):
+        averageNfe: List[CompRec] = []
+        ID = 0
+
+        for neighbourhood in neighbourhoods:
+            avg = 0.0
+            for nID in neighbourhood:
+                avg += directionalArchive[nID].nfeSinceLastUpdate
+            avg /= len(neighbourhood)
+
+            averageNfe.append(CompRec(ID, avg))
+            ID += 1
+        averageNfe.sort()
+
+        result: List[int] = []
+        for i in range(intensificationClusters):
+            result.append(averageNfe[len(averageNfe) - 1 - i].id)
+        return result
+
+    def __create_neighbourhoods(
+        self, dirArchive: List[DirectionRec], neighborhood_size: int
+    ):
+        neighbourhoods: List[List[int]] = []
+
+        for di1 in dirArchive:
+            distToNeighbour: List[CompRec] = []
+            for di2 in dirArchive:
+                if di1.id != di2.id:
+                    distToNeighbour.append(
+                        CompRec(
+                            di2.id,
+                            self.__compute_euclidean_distance(
+                                di1.weigh_vector, di2.weigh_vector
+                            ),
+                        )
+                    )
+            distToNeighbour.sort()
+            neighbourhood: List[int] = []
+            for i in range(neighborhood_size):
+                if i < len(distToNeighbour):
+                    neighbourhood.append(distToNeighbour[i].id)
+            neighbourhoods.append(neighbourhood)
+        return neighbourhoods
+
+    def __update_neighbourhoods(
+        self,
+        directionalArchive: List[DirectionRec],
+        newSolution: FloatSolution,
+        nrOfReplacements: int,
+    ):
+        improvedDistances: List[CompRec] = []
+        isImprovement = False
+
+        for cdr in directionalArchive:
+            newFitnessValue = self.__evaluate_Tchebycheff_Fitness(
+                newSolution, cdr.weigh_vector
+            )
+            if newFitnessValue < cdr.fitness_value:
+                improvedDistances.append(CompRec(cdr.id, newFitnessValue))
+                isImprovement = True
+            else:
+                cdr.nfeSinceLastUpdate = cdr.nfeSinceLastUpdate + 1
+
+        improvedDistances.sort()
+        improvedDistances.reverse()
+
+        if isImprovement:
+            for i in range(nrOfReplacements):
+                j = 0
+                cdr = directionalArchive[improvedDistances[j].id]
+                cdr.curr_sol = newSolution
+                cdr.fitness_value = improvedDistances[j].value
+                cdr.nfeSinceLastUpdate = 0
+            return 1
+        return 0
+
+    def __evaluate_Tchebycheff_Fitness(
+        self, individual: FloatSolution, lmbd: List[float]
+    ):
+        max = sys.float_info.min
+
+        for i in range(self.problem.number_of_objectives):
+            diff = abs(
+                individual.objectives[i] - self.extreme_values[self.MIN_VALUES][i]
+            )
+            tcheFuncVal: float = None
+
+            if lmbd[i] == 0:
+                tcheFuncVal = 0.000001 * diff
+            else:
+                tcheFuncVal = diff * lmbd[i]
+
+            if tcheFuncVal > max:
+                max = tcheFuncVal
+
+        return max
+
+    def __update_extreme_values(self, sol: FloatSolution):
+        for i in range(sol.number_of_objectives):
+            objValue = sol.objectives[i]
+            if objValue < self.extreme_values[self.MIN_VALUES][i]:
+                self.extreme_values[self.MIN_VALUES][i] = objValue
+            if objValue > self.extreme_values[self.MAX_VALUES][i]:
+                self.extreme_values[self.MAX_VALUES][i] = objValue
+
+    def __clear_Nfe_history(self, directionalArchive: List[DirectionRec]):
+        for dr in directionalArchive:
+            dr.nfeSinceLastUpdate = 0
 
     def get_result(self) -> R:
         return self.solutions
