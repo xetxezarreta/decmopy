@@ -20,7 +20,7 @@ def main():
     ]
 
     for problem in problems:
-        algorithm = DECMO2(problem)
+        algorithm = DECMO2(problem, max_iterations=50000)
         algorithm.run()
         front = algorithm.get_result()
         print(f"Algorithm: ${algorithm.get_name()}")
