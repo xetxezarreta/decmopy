@@ -8,6 +8,7 @@ from jmetal.core.solution import FloatSolution
 from jmetal.util.ranking import FastNonDominatedRanking
 from jmetal.util.comparator import Comparator
 from jmetal.util.density_estimator import CrowdingDistance
+from jmetal.core.quality_indicator import HyperVolume
 from jmetal.util.replacement import (
     RankingAndDensityEstimatorReplacement,
     RemovalPolicyType,
@@ -240,6 +241,24 @@ class DECMO2(Algorithm[S, R]):
             dr.curr_sol = new_solution
             iniID += 1
 
+        mix = self.mix_interval
+        h = HyperVolume(reference_point=[1]*self.problem.number_of_objectives)
+
+        insertionRate: List[float] = [0, 0, 0]
+        bonusEvals: List[int] = [0, 0, nrOfDirectionalSolutionsToEvolve]
+        testRun = True
+
+        # record the generational HV of the initial population
+        combiAll: List[FloatSolution] = []
+        cGen = int(evaluations / self.report_interval)
+        if cGen > 0:
+            combiAll = pool_1 + pool_2 + pool_A 
+            hval = h.compute([s.objectives for s in combiAll])
+            for _ in range(cGen):
+                generational_hv.append(hval)
+            current_gen = cGen
+        
+        # the main loop of the algorithm
         # continue here
         return 0
 
