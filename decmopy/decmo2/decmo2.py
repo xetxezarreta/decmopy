@@ -462,7 +462,7 @@ class DECMO2(Algorithm[S, R]):
                 improvements += self.__update_neighbourhoods(
                     directionalArchive, testSol, nrOfReplacements
                 )
-            insertionRate[0] += len((1.0 * improvements) / len(dirInsertPool1))
+            insertionRate[0] += (1.0 * improvements) / len(dirInsertPool1)
 
             # pool2
             improvements = 0
@@ -472,7 +472,7 @@ class DECMO2(Algorithm[S, R]):
                 improvements += self.__update_neighbourhoods(
                     directionalArchive, testSol, nrOfReplacements
                 )
-            insertionRate[1] += len((1.0 * improvements) / len(dirInsertPool2))
+            insertionRate[1] += (1.0 * improvements) / len(dirInsertPool2)
 
             # pool3
             improvements = 0
@@ -482,7 +482,7 @@ class DECMO2(Algorithm[S, R]):
                 improvements += self.__update_neighbourhoods(
                     directionalArchive, testSol, nrOfReplacements
                 )
-            insertionRate[2] += len((1.0 * improvements) / len(dirInsertPool3))
+            insertionRate[2] += (1.0 * improvements) / len(dirInsertPool3)
 
             for dr in directionalArchive:
                 offspringPop3.append(dr.curr_sol)
@@ -493,7 +493,7 @@ class DECMO2(Algorithm[S, R]):
             if mix == 0:
                 mix = self.mix_interval
                 combi = pool_1 + pool_2 + offspringPop3
-                print("Combi size: " + len(combi))
+                print("Combi size: " + str(len(combi)))
 
                 insertionRate[0] /= self.mix_interval
                 insertionRate[1] /= self.mix_interval
@@ -507,7 +507,7 @@ class DECMO2(Algorithm[S, R]):
                     + " - "
                     + str(insertionRate[2])
                     + " - Test run:"
-                    + testRun
+                    + str(testRun)
                 )
 
                 if testRun:
@@ -540,12 +540,28 @@ class DECMO2(Algorithm[S, R]):
 
                 pool_1 = pool_1 + combi
                 pool_2 = pool_2 + combi
-                print("Sizes: " + len(pool_1) + " " + len(pool_2))
+                print("Sizes: " + str(len(pool_1)) + " " + str(len(pool_2)))
 
                 self.__clear_Nfe_history(directionalArchive)
 
-            # continue here
-        return 0
+            hVal1 = h.compute([s.objectives for s in pool_1])
+            hVal2 = h.compute([s.objectives for s in pool_2])
+            hVal3 = h.compute([s.objectives for s in offspringPop3])
+
+            newGen = int(evaluations / self.report_interval)
+
+            if newGen > current_gen:
+                print("Hypervolume: " + str(newGen) + " - " + str(hVal1) + " - " + str(hVal2) + " - " + str(hVal3))
+                combi = pool_1 + pool_2 + offspringPop3
+                hval = h.compute([s.objectives for s in combi])
+                for j in range(current_gen, newGen):
+                    generational_hv.append(hval)
+                current_gen = newGen
+
+        
+		# return the final combined non-dominated set of maximum size = (populationSize * 2)
+        combiAll: List[FloatSolution] = [pool_1 + pool_2 + pool_A]
+        return combiAll
 
     def get_result(self) -> R:
         return self.solutions
