@@ -1,4 +1,4 @@
-import sys, math
+import sys, math, operator
 import numpy as np
 from typing import List, TypeVar
 from jmetal.config import store
@@ -20,9 +20,9 @@ from jmetal.operator import (
 )
 from jmetal.operator.selection import DifferentialEvolutionSelection
 
-from .direction_rec import DirectionRec
-from .distribution_gen import DistribGen
-from .comp_rec import CompRec
+from direction_rec import DirectionRec
+from distribution_gen import DistribGen
+from comp_rec import CompRec
 
 
 S = TypeVar("S")
@@ -71,7 +71,7 @@ class DECMO2(Algorithm[S, R]):
         return math.sqrt(value)
 
     def __create_uniform_weights(self, dirArchiveSize: int, nrOfObjectives: int):
-        lmdb: List[float] = []
+        lmdb = np.zeros(shape=(dirArchiveSize, nrOfObjectives))
 
         if nrOfObjectives == 2 and dirArchiveSize < 500:
             for n in range(dirArchiveSize):
@@ -134,7 +134,7 @@ class DECMO2(Algorithm[S, R]):
                             ),
                         )
                     )
-            distToNeighbour = distToNeighbour.sort()
+            distToNeighbour.sort()
             neighbourhood: List[int] = []
             for i in range(neighborhood_size):
                 if i < len(distToNeighbour):
@@ -175,9 +175,9 @@ class DECMO2(Algorithm[S, R]):
         # size of elite subset used for fitness sharing between subpopulations
         nrOfDirectionalSolutionsToEvolve = self.population_size / 5
         # subpopulation 1
-        pool_1_size = self.population_size - (nrOfDirectionalSolutionsToEvolve / 2)
+        pool_1_size = int(self.population_size - (nrOfDirectionalSolutionsToEvolve / 2))
         # subpopulation 2
-        pool_2_size = self.population_size - (nrOfDirectionalSolutionsToEvolve / 2)
+        pool_2_size = int(self.population_size - (nrOfDirectionalSolutionsToEvolve / 2))
 
         print(
             str(pool_1_size)
@@ -196,7 +196,7 @@ class DECMO2(Algorithm[S, R]):
 
         directionalArchive = self.__create_directional_archive(weights)
         neighbourhoods = self.__create_neighbourhoods(
-            directionalArchive, self.problem.number_of_objectives
+            directionalArchive, self.population_size
         )
 
         nrOfReplacements = 1
@@ -205,7 +205,7 @@ class DECMO2(Algorithm[S, R]):
         # Create the initial pools
         # pool1
         pool_1: List[FloatSolution] = []
-        for i in range(pool_1_size):
+        for _ in range(pool_1_size):
             new_solution = self.problem.create_solution()
             new_solution = self.problem.evaluate(new_solution)
             evaluations += 1
@@ -217,7 +217,7 @@ class DECMO2(Algorithm[S, R]):
             iniID += 1
         # pool2
         pool_2: List[FloatSolution] = []
-        for i in range(pool_2_size):
+        for _ in range(pool_2_size):
             new_solution = self.problem.create_solution()
             new_solution = self.problem.evaluate(new_solution)
             evaluations += 1
@@ -241,6 +241,7 @@ class DECMO2(Algorithm[S, R]):
             iniID += 1
 
         # continue here
+        return 0
 
     def get_result(self) -> R:
         return self.solutions

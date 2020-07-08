@@ -3,7 +3,10 @@ class CompRec:
         self.id = id
         self.value = value
 
-    def compareTo(self, o: CompRec):
+    def __lt__(self, other):
+        return self.value < other.value
+
+    def compareTo(self, o: "CompRec"):
         if self.value > o.value:
             return 1
         if self.value < o.value:
