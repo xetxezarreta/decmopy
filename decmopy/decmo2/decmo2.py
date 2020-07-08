@@ -169,6 +169,10 @@ class DECMO2(Algorithm[S, R]):
         # array that stores the "generational" HV quality
         generational_hv: List[float] = []
 
+        parent_1: List[FloatSolution] = [None, None]
+        parent_2: List[FloatSolution] = []
+        parent_3: List[FloatSolution] = []
+
         # initialize some local and global variables
         pool_1: List[FloatSolution] = []
         pool_2: List[FloatSolution] = []
@@ -259,6 +263,32 @@ class DECMO2(Algorithm[S, R]):
             current_gen = cGen
         
         # the main loop of the algorithm
+        while evaluations < self.max_iterations:
+            offspringPop1: List[FloatSolution] = []
+            offspringPop2: List[FloatSolution] = []
+            offspringPop3: List[FloatSolution] = []
+
+            dirInsertPool1: List[FloatSolution] = []
+            dirInsertPool2: List[FloatSolution] = []
+            dirInsertPool3: List[FloatSolution] = []
+
+            # evolve pool1 - using SPEA2 evolutionary model
+            nfe: int = 0
+            while nfe < (pool_1_size + bonusEvals[0]):
+                parent_1[0] = selection_operator_1.execute(pool_1)
+                parent_1[1] = selection_operator_1.execute(pool_1)
+
+                children = crossover_operator_1.execute(parent_1)
+                child1a = children[0]
+                child1a = mutation_operator_1.execute(child1a)
+
+                child1a = self.problem.evaluate(child1a)
+                evaluations += 1
+                nfe += 1
+
+                offspringPop1.append(child1a)
+                dirInsertPool1.append(child1a)
+
         # continue here
         return 0
 
