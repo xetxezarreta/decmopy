@@ -1,4 +1,4 @@
-import sys, math, operator
+import sys, math, operator, random
 import numpy as np
 from typing import List, TypeVar
 from jmetal.config import store
@@ -6,7 +6,7 @@ from jmetal.core.algorithm import Algorithm
 from jmetal.core.problem import Problem
 from jmetal.core.solution import FloatSolution
 from jmetal.util.ranking import FastNonDominatedRanking
-from jmetal.util.comparator import Comparator
+from jmetal.util.comparator import Comparator, DominanceComparator
 from jmetal.util.density_estimator import CrowdingDistance
 from jmetal.core.quality_indicator import HyperVolume
 from jmetal.util.replacement import (
@@ -166,6 +166,9 @@ class DECMO2(Algorithm[S, R]):
         mutation_operator_1 = PolynomialMutation(
             1.0 / self.problem.number_of_variables, 20.0
         )
+        # dominance comparator
+        dominance = DominanceComparator()
+
         # array that stores the "generational" HV quality
         generational_hv: List[float] = []
 
@@ -288,6 +291,41 @@ class DECMO2(Algorithm[S, R]):
 
                 offspringPop1.append(child1a)
                 dirInsertPool1.append(child1a)
+
+            # evolve pool2 - using DEMO SP evolutionary model
+            i: int = 0
+            unselectedIDs: List[int] = []
+            for ID in range(len(pool_2)):
+                unselectedIDs.append(ID)
+            
+            nfe = 0
+            while nfe < (pool_2_size + bonusEvals[1]):
+                index = random.randint(0, len(unselectedIDs) - 1)
+                i = unselectedIDs[index]
+                unselectedIDs.pop(index)
+
+                parent_2 = selection_operator_2.execute(pool_2)
+                child2 = crossover_operator_2.execute(parent_2)
+
+                child2 = self.problem.evaluate(child2)
+                evaluations += 1
+                nfe += 1
+
+                result = dominance.compare(pool_2[i], child2)
+
+                if result == -1: # solution i dominates child
+                    offspringPop2.append(pool_2[i])
+                elif result == 1: # child dominates
+                    offspringPop2.append(child2)
+                else: # the two solutions are non-dominated
+                    offspringPop2.append(pool_2[i])
+                    offspringPop2.append(child2)
+                
+                dirInsertPool2.append(child2)
+
+                if len(unselectedIDs) == 0:
+                    for ID in range(len(pool_2)):
+                        unselectedIDs.append(random.randint(0, len(pool_2) - 2))
 
         # continue here
         return 0

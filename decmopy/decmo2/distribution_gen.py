@@ -79,7 +79,7 @@ class DistribGen:
 
         originalSetSize = len(distrib)
         while len(distrib) > num_samples:
-            ind = random.randint(0, len(distrib))
+            ind = random.randint(0, len(distrib) - 1)
             distrib.remove(ind)
 
         if not mockRun:
