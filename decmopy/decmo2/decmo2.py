@@ -118,6 +118,30 @@ class DECMO2(Algorithm[S, R]):
             directionalArchive.append(di)
         return directionalArchive
 
+    def __compute_neighbourhood_Nfe_since_last_update(
+        self,
+        neighbourhoods: List[List[int]],
+        directionalArchive: List[DirectionRec],
+        intensificationClusters: int,
+    ):
+        averageNfe: List[CompRec] = []
+        ID = 0
+
+        for neighbourhood in neighbourhoods:
+            avg = 0.0
+            for nID in neighbourhood:
+                avg += directionalArchive[nID].nfeSinceLastUpdate
+            avg /= len(neighbourhood)
+
+            averageNfe.append(CompRec(ID, avg))
+            ID += 1
+        averageNfe.sort()
+
+        result: List[int] = []
+        for i in range(intensificationClusters):
+            result.append(averageNfe[len(averageNfe) - 1 - i].id)
+        return result
+
     def __create_neighbourhoods(
         self, dirArchive: List[DirectionRec], neighborhood_size: int
     ):
@@ -181,7 +205,7 @@ class DECMO2(Algorithm[S, R]):
         pool_2: List[FloatSolution] = []
 
         # size of elite subset used for fitness sharing between subpopulations
-        nrOfDirectionalSolutionsToEvolve = self.population_size / 5
+        nrOfDirectionalSolutionsToEvolve = int(self.population_size / 5)
         # subpopulation 1
         pool_1_size = int(self.population_size - (nrOfDirectionalSolutionsToEvolve / 2))
         # subpopulation 2
@@ -249,7 +273,7 @@ class DECMO2(Algorithm[S, R]):
             iniID += 1
 
         mix = self.mix_interval
-        h = HyperVolume(reference_point=[1]*self.problem.number_of_objectives)
+        h = HyperVolume(reference_point=[1] * self.problem.number_of_objectives)
 
         insertionRate: List[float] = [0, 0, 0]
         bonusEvals: List[int] = [0, 0, nrOfDirectionalSolutionsToEvolve]
@@ -259,12 +283,12 @@ class DECMO2(Algorithm[S, R]):
         combiAll: List[FloatSolution] = []
         cGen = int(evaluations / self.report_interval)
         if cGen > 0:
-            combiAll = pool_1 + pool_2 + pool_A 
+            combiAll = pool_1 + pool_2 + pool_A
             hval = h.compute([s.objectives for s in combiAll])
             for _ in range(cGen):
                 generational_hv.append(hval)
             current_gen = cGen
-        
+
         # the main loop of the algorithm
         while evaluations < self.max_iterations:
             offspringPop1: List[FloatSolution] = []
@@ -297,7 +321,7 @@ class DECMO2(Algorithm[S, R]):
             unselectedIDs: List[int] = []
             for ID in range(len(pool_2)):
                 unselectedIDs.append(ID)
-            
+
             nfe = 0
             while nfe < (pool_2_size + bonusEvals[1]):
                 index = random.randint(0, len(unselectedIDs) - 1)
@@ -305,27 +329,72 @@ class DECMO2(Algorithm[S, R]):
                 unselectedIDs.pop(index)
 
                 parent_2 = selection_operator_2.execute(pool_2)
+                crossover_operator_2.current_individual = pool_2[i]
                 child2 = crossover_operator_2.execute(parent_2)
 
-                child2 = self.problem.evaluate(child2)
+                child2 = self.problem.evaluate(child2[0])
                 evaluations += 1
                 nfe += 1
 
                 result = dominance.compare(pool_2[i], child2)
 
-                if result == -1: # solution i dominates child
+                if result == -1:  # solution i dominates child
                     offspringPop2.append(pool_2[i])
-                elif result == 1: # child dominates
+                elif result == 1:  # child dominates
                     offspringPop2.append(child2)
-                else: # the two solutions are non-dominated
+                else:  # the two solutions are non-dominated
                     offspringPop2.append(pool_2[i])
                     offspringPop2.append(child2)
-                
+
                 dirInsertPool2.append(child2)
 
                 if len(unselectedIDs) == 0:
                     for ID in range(len(pool_2)):
                         unselectedIDs.append(random.randint(0, len(pool_2) - 2))
+                        
+            # evolve pool3 - Directional Decomposition DE/rand/1/bin
+            IDs = self.__compute_neighbourhood_Nfe_since_last_update(
+                neighbourhoods, directionalArchive, nrOfDirectionalSolutionsToEvolve
+            )
+
+            nfe = 0
+            for j in range(len(IDs)):
+                if nfe < bonusEvals[2]:
+                    nfe += 1
+                else:
+                    break
+
+                cID = IDs[j]
+
+                chosenSol: FloatSolution = None
+                if directionalArchive[cID].curr_sol != None:
+                    chosenSol = directionalArchive[cID].curr_sol
+                else:
+                    chosenSol = pool_1[0]
+                    print("error!")
+
+                parent_3: List[FloatSolution] = [None, None, None]
+
+                r1 = random.randint(0, len(neighbourhoods[cID]) - 2)
+                r2 = random.randint(0, len(neighbourhoods[cID]) - 2)
+                r3 = random.randint(0, len(neighbourhoods[cID]) - 2)
+                while r2 == r1:
+                    r2 = random.randint(0, len(neighbourhoods[cID]) - 2)
+                while r3 == r1 or r3 == r2:
+                    r3 = random.randint(0, len(neighbourhoods[cID]) - 2)
+
+                parent_3[0] = directionalArchive[r1].curr_sol
+                parent_3[1] = directionalArchive[r2].curr_sol
+                parent_3[2] = directionalArchive[r3].curr_sol
+
+                crossover_operator_3.current_individual = chosenSol
+                child3 = crossover_operator_3.execute(parent_3)[0]
+                child3 = mutation_operator_1.execute(child3)
+
+                child3 = self.problem.evaluate(child3)
+                evaluations += 1
+
+                dirInsertPool3.append(child3)
 
         # continue here
         return 0
