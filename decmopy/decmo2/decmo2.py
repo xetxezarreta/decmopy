@@ -341,6 +341,10 @@ class DECMO2(Algorithm[S, R]):
         cGen = int(evaluations / self.report_interval)
         if cGen > 0:
             combiAll = pool_1 + pool_2 + pool_A
+            combiAll = self.r.replace(
+                combiAll[: pool_1_size + pool_2_size],
+                combiAll[pool_1_size + pool_2_size :],
+            )
             hval = h.compute([s.objectives for s in combiAll])
             for _ in range(cGen):
                 generational_hv.append(hval)
@@ -487,6 +491,14 @@ class DECMO2(Algorithm[S, R]):
             for dr in directionalArchive:
                 offspringPop3.append(dr.curr_sol)
 
+            offspringPop1 = offspringPop1 + pool_1
+            pool_1 = self.r.replace(
+                offspringPop1[:pool_1_size], offspringPop1[pool_1_size:]
+            )
+            pool_2 = self.r.replace(
+                offspringPop2[:pool_2_size], offspringPop2[pool_2_size:]
+            )
+
             combi: List[FloatSolution] = []
             mix -= 1
 
@@ -494,6 +506,10 @@ class DECMO2(Algorithm[S, R]):
                 mix = self.mix_interval
                 combi = pool_1 + pool_2 + offspringPop3
                 print("Combi size: " + str(len(combi)))
+
+                combi = self.r.replace(
+                    combi[:nrOfDirectionalSolutionsToEvolve], combi[nrOfDirectionalSolutionsToEvolve:]
+                )
 
                 insertionRate[0] /= self.mix_interval
                 insertionRate[1] /= self.mix_interval
@@ -542,6 +558,13 @@ class DECMO2(Algorithm[S, R]):
                 pool_2 = pool_2 + combi
                 print("Sizes: " + str(len(pool_1)) + " " + str(len(pool_2)))
 
+                pool_1 = self.r.replace(
+                    pool_1[:pool_1_size], pool_1[pool_1_size:]
+                )
+                pool_2 = self.r.replace(
+                    pool_2[:pool_2_size], pool_2[pool_2_size:]
+                )
+
                 self.__clear_Nfe_history(directionalArchive)
 
             hVal1 = h.compute([s.objectives for s in pool_1])
@@ -553,6 +576,9 @@ class DECMO2(Algorithm[S, R]):
             if newGen > current_gen:
                 print("Hypervolume: " + str(newGen) + " - " + str(hVal1) + " - " + str(hVal2) + " - " + str(hVal3))
                 combi = pool_1 + pool_2 + offspringPop3
+                combi = self.r.replace(
+                    combi[:self.population_size * 2], combi[self.population_size * 2:]
+                )
                 hval = h.compute([s.objectives for s in combi])
                 for j in range(current_gen, newGen):
                     generational_hv.append(hval)
@@ -561,6 +587,9 @@ class DECMO2(Algorithm[S, R]):
         
 		# return the final combined non-dominated set of maximum size = (populationSize * 2)
         combiAll: List[FloatSolution] = [pool_1 + pool_2 + pool_A]
+        combiAll = self.r.replace(
+            combiAll[:self.population_size * 2], combiAll[self.population_size * 2:]
+        )
         return combiAll
 
     def get_result(self) -> R:
