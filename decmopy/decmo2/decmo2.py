@@ -167,6 +167,59 @@ class DECMO2(Algorithm[S, R]):
             neighbourhoods.append(neighbourhood)
         return neighbourhoods
 
+    def __update_neighbourhoods(
+        self,
+        directionalArchive: List[DirectionRec],
+        newSolution: FloatSolution,
+        nrOfReplacements: int,
+    ):
+        improvedDistances: List[CompRec] = []
+        isImprovement = False
+
+        for cdr in directionalArchive:
+            newFitnessValue = self.__evaluate_Tchebycheff_Fitness(
+                newSolution, cdr.weigh_vector
+            )
+            if newFitnessValue < cdr.fitness_value:
+                improvedDistances.append(CompRec(cdr.id, newFitnessValue))
+                isImprovement = True
+            else:
+                cdr.nfeSinceLastUpdate = cdr.nfeSinceLastUpdate + 1
+
+        improvedDistances.sort()
+        improvedDistances.reverse()
+
+        if isImprovement:
+            for i in range(nrOfReplacements):
+                j = 0
+                cdr = directionalArchive[improvedDistances[j].id]
+                cdr.curr_sol = newSolution
+                cdr.fitness_value = improvedDistances[j].value
+                cdr.nfeSinceLastUpdate = 0
+            return 1
+        return 0
+
+    def __evaluate_Tchebycheff_Fitness(
+        self, individual: FloatSolution, lmbd: List[float]
+    ):
+        max = sys.float_info.min
+
+        for i in range(self.problem.number_of_objectives):
+            diff = abs(
+                individual.objectives[i] - self.extreme_values[self.MIN_VALUES][i]
+            )
+            tcheFuncVal: float = None
+
+            if lmbd[i] == 0:
+                tcheFuncVal = 0.000001 * diff
+            else:
+                tcheFuncVal = diff * lmbd[i]
+
+            if tcheFuncVal > max:
+                max = tcheFuncVal
+
+        return max
+
     def __update_extreme_values(self, sol: FloatSolution):
         for i in range(sol.number_of_objectives):
             objValue = sol.objectives[i]
@@ -174,6 +227,10 @@ class DECMO2(Algorithm[S, R]):
                 self.extreme_values[self.MIN_VALUES][i] = objValue
             if objValue > self.extreme_values[self.MAX_VALUES][i]:
                 self.extreme_values[self.MAX_VALUES][i] = objValue
+
+    def __clear_Nfe_history(self, directionalArchive: List[DirectionRec]):
+        for dr in directionalArchive:
+            dr.nfeSinceLastUpdate = 0
 
     def run(self) -> List[S]:
         # selection operator 1
@@ -351,7 +408,7 @@ class DECMO2(Algorithm[S, R]):
                 if len(unselectedIDs) == 0:
                     for ID in range(len(pool_2)):
                         unselectedIDs.append(random.randint(0, len(pool_2) - 2))
-                        
+
             # evolve pool3 - Directional Decomposition DE/rand/1/bin
             IDs = self.__compute_neighbourhood_Nfe_since_last_update(
                 neighbourhoods, directionalArchive, nrOfDirectionalSolutionsToEvolve
@@ -396,7 +453,98 @@ class DECMO2(Algorithm[S, R]):
 
                 dirInsertPool3.append(child3)
 
-        # continue here
+            # compute directional improvements
+            # pool1
+            improvements = 0
+            for j in range(len(dirInsertPool1)):
+                testSol = dirInsertPool1[j]
+                self.__update_extreme_values(testSol)
+                improvements += self.__update_neighbourhoods(
+                    directionalArchive, testSol, nrOfReplacements
+                )
+            insertionRate[0] += len((1.0 * improvements) / len(dirInsertPool1))
+
+            # pool2
+            improvements = 0
+            for j in range(len(dirInsertPool2)):
+                testSol = dirInsertPool2[j]
+                self.__update_extreme_values(testSol)
+                improvements += self.__update_neighbourhoods(
+                    directionalArchive, testSol, nrOfReplacements
+                )
+            insertionRate[1] += len((1.0 * improvements) / len(dirInsertPool2))
+
+            # pool3
+            improvements = 0
+            for j in range(len(dirInsertPool3)):
+                testSol = dirInsertPool3[j]
+                self.__update_extreme_values(testSol)
+                improvements += self.__update_neighbourhoods(
+                    directionalArchive, testSol, nrOfReplacements
+                )
+            insertionRate[2] += len((1.0 * improvements) / len(dirInsertPool3))
+
+            for dr in directionalArchive:
+                offspringPop3.append(dr.curr_sol)
+
+            combi: List[FloatSolution] = []
+            mix -= 1
+
+            if mix == 0:
+                mix = self.mix_interval
+                combi = pool_1 + pool_2 + offspringPop3
+                print("Combi size: " + len(combi))
+
+                insertionRate[0] /= self.mix_interval
+                insertionRate[1] /= self.mix_interval
+                insertionRate[2] /= self.mix_interval
+
+                print(
+                    "Insertion rates: "
+                    + str(insertionRate[0])
+                    + " - "
+                    + str(insertionRate[1])
+                    + " - "
+                    + str(insertionRate[2])
+                    + " - Test run:"
+                    + testRun
+                )
+
+                if testRun:
+                    if (insertionRate[0] > insertionRate[1]) and (insertionRate[0] > insertionRate[2]):
+                        print("SPEA2 win - bonus run!")
+                        bonusEvals[0] = nrOfDirectionalSolutionsToEvolve  
+                        bonusEvals[1] = 0
+                        bonusEvals[2] = 0
+                    if (insertionRate[1] > insertionRate[0]) and (insertionRate[1] > insertionRate[2]):
+                        print("DE win - bonus run!")
+                        bonusEvals[0] = 0
+                        bonusEvals[1] = nrOfDirectionalSolutionsToEvolve
+                        bonusEvals[2] = 0
+                    if (insertionRate[2] > insertionRate[0]) and (insertionRate[2] > insertionRate[1]):
+                        print("Directional win - no bonus!")
+                        bonusEvals[0] = 0
+                        bonusEvals[1] = 0
+                        bonusEvals[2] = nrOfDirectionalSolutionsToEvolve
+                else:
+                    print("Test run - no bonus!")
+                    bonusEvals[0] = 0
+                    bonusEvals[1] = 0
+                    bonusEvals[2] = nrOfDirectionalSolutionsToEvolve
+
+                testRun = not testRun
+
+                insertionRate[0] = 0.0
+                insertionRate[1] = 0.0
+                insertionRate[2] = 0.0
+
+                pool_1 = pool_1 + combi
+                pool_2 = pool_2 + combi
+                print("Sizes: " + len(pool_1) + " " + len(pool_2))
+
+                self.__clear_Nfe_history(directionalArchive)
+
+            # continue here
         return 0
 
     def get_result(self) -> R:
