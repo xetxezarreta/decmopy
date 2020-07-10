@@ -8,7 +8,7 @@ from decmo2 import DECMO2
 def create_problem(problem):
     p = problem()
     p.reference_front = read_solutions(
-        filename="./resources/" + p.__class__.__name__ + ".pf"
+        filename="./decmopy/resources/" + p.__class__.__name__ + ".pf"
     )
     return p
 
