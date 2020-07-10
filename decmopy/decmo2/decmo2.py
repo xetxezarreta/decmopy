@@ -319,7 +319,12 @@ class DECMO2(Algorithm[S, R]):
                 improvements += self.__update_neighbourhoods(
                     directionalArchive, testSol, nrOfReplacements
                 )
-            insertionRate[2] += (1.0 * improvements) / len(dirInsertPool3)
+            # on java, dividin a floating number by 0, returns NaN
+            # on python, dividing a floating number by 0, returns an exception
+            if len(dirInsertPool3) == 0:
+                insertionRate[2] = None
+            else:
+                insertionRate[2] += (1.0 * improvements) / len(dirInsertPool3)
 
             for dr in directionalArchive:
                 offspringPop3.append(dr.curr_sol)
@@ -344,10 +349,11 @@ class DECMO2(Algorithm[S, R]):
                     combi[:nrOfDirectionalSolutionsToEvolve],
                     combi[nrOfDirectionalSolutionsToEvolve:],
                 )
-
+                
                 insertionRate[0] /= self.mix_interval
                 insertionRate[1] /= self.mix_interval
-                insertionRate[2] /= self.mix_interval
+                if insertionRate[2]!= None:
+                    insertionRate[2] /= self.mix_interval
 
                 print(
                     "Insertion rates: "
