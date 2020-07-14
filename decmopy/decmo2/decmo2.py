@@ -319,7 +319,7 @@ class DECMO2(Algorithm[S, R]):
                 improvements += self.__update_neighbourhoods(
                     directionalArchive, testSol, nrOfReplacements
                 )
-            # on java, dividin a floating number by 0, returns NaN
+            # on java, dividing a floating number by 0, returns NaN
             # on python, dividing a floating number by 0, returns an exception
             if len(dirInsertPool3) == 0:
                 insertionRate[2] = None
@@ -436,7 +436,7 @@ class DECMO2(Algorithm[S, R]):
                 current_gen = newGen
 
         # return the final combined non-dominated set of maximum size = (populationSize * 2)
-        combiAll: List[FloatSolution] = [pool_1 + pool_2 + pool_A]
+        combiAll: List[FloatSolution] = pool_1 + pool_2 + pool_A
         combiAll = self.r.replace(
             combiAll[: self.population_size * 2], combiAll[self.population_size * 2 :]
         )
@@ -459,7 +459,7 @@ class DECMO2(Algorithm[S, R]):
                 print(lmdb[n][0])
                 print(lmdb[n][1])
         else:
-            dataFileName = "W" + nrOfObjectives + "D_" + dirArchiveSize + ".dat"
+            dataFileName = "W" + str(nrOfObjectives) + "D_" + str(dirArchiveSize) + ".dat"
             data_path = self.dataDirectory + "/" + dataFileName
             print(dataFileName)
             print(data_path)

@@ -5,18 +5,11 @@ from jmetal.util.solution import read_solutions
 from decmo2 import DECMO2
 
 
-def create_problem(problem):
-    p = problem()
-    p.reference_front = read_solutions(
-        filename="./decmopy/resources/" + p.__class__.__name__ + ".pf"
-    )
-    return p
-
 
 def main():
     problems = [
-        # ZTD
-        create_problem(zdt.ZDT1)
+        #dtlz.DTLZ1()
+        dtlz.DTLZ7()
     ]
 
     for problem in problems:
@@ -26,6 +19,7 @@ def main():
         print(f"Algorithm: ${algorithm.get_name()}")
         print(f"Problem: ${problem.get_name()}")
         print(f"Computing time: ${algorithm.total_computing_time}")
+        print(f"Final non-dominted solution set size: ${len(front)}")
 
 
 if __name__ == "__main__":
