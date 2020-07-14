@@ -44,7 +44,7 @@ class DistribGen:
             distrib.append(sample)
 
         for sample in distrib:
-            for i in range(dimensions):
+            for i in range(1, dimensions):
                 sample.append(0)
 
         addedNewSamples = True
@@ -97,12 +97,11 @@ class DistribGen:
                     finalSample: List[int] = []
                     for i in range(len(sample)):
                         finalSample.append((sample[i] * 1.0) / steps)
-                        s += str("%.2f" % finalSample[i])
+                        s += str("%.6f" % finalSample[i])
                         s += " "
                     final_distrib.append(finalSample)
                     with open(path, "a") as file:
                         file.write(s + "\n")
-
             except Exception as e:
                 print(e)
 

@@ -95,7 +95,7 @@ class DECMO(Algorithm[S, R]):
         # )
 
         # h = HyperVolume(reference_point=[1, 1, 1])
-        h = HyperVolume(reference_point=[1, 1])
+        h = HyperVolume(reference_point=[1] * self.problem.number_of_objectives)
 
         initial_population = True
 

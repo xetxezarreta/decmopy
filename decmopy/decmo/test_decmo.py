@@ -16,16 +16,17 @@ def create_problem(problem):
 def main():
     problems = [
         # ZTD
-        create_problem(zdt.ZDT1)
+        #create_problem(zdt.ZDT1)
+        zdt.ZDT1()
     ]
 
     for problem in problems:
-        algorithm = DECMO(problem)
-        algorithm.run()
-        front = algorithm.get_result()
+        algorithm = DECMO(problem, max_iterations=500)
+        result = algorithm.run()
         print(f"Algorithm: ${algorithm.get_name()}")
         print(f"Problem: ${problem.get_name()}")
         print(f"Computing time: ${algorithm.total_computing_time}")
+        print(f"Final non-dominted solution set size: ${len(result)}")
 
 
 if __name__ == "__main__":

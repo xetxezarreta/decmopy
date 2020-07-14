@@ -223,10 +223,11 @@ class DECMO2(Algorithm[S, R]):
                 unselectedIDs.pop(index)
 
                 parent_2 = selection_operator_2.execute(pool_2)
+
                 crossover_operator_2.current_individual = pool_2[i]
                 child2 = crossover_operator_2.execute(parent_2)
-
                 child2 = self.problem.evaluate(child2[0])
+
                 evaluations += 1
                 nfe += 1
 
@@ -237,14 +238,14 @@ class DECMO2(Algorithm[S, R]):
                 elif result == 1:  # child dominates
                     offspringPop2.append(child2)
                 else:  # the two solutions are non-dominated
-                    offspringPop2.append(pool_2[i])
                     offspringPop2.append(child2)
+                    offspringPop2.append(pool_2[i])
 
                 dirInsertPool2.append(child2)
 
                 if len(unselectedIDs) == 0:
                     for ID in range(len(pool_2)):
-                        unselectedIDs.append(random.randint(0, len(pool_2) - 2))
+                        unselectedIDs.append(random.randint(0, len(pool_2) - 1))
 
             # evolve pool3 - Directional Decomposition DE/rand/1/bin
             IDs = self.__compute_neighbourhood_Nfe_since_last_update(
@@ -269,13 +270,13 @@ class DECMO2(Algorithm[S, R]):
 
                 parent_3: List[FloatSolution] = [None, None, None]
 
-                r1 = random.randint(0, len(neighbourhoods[cID]) - 2)
-                r2 = random.randint(0, len(neighbourhoods[cID]) - 2)
-                r3 = random.randint(0, len(neighbourhoods[cID]) - 2)
+                r1 = random.randint(0, len(neighbourhoods[cID]) - 1)
+                r2 = random.randint(0, len(neighbourhoods[cID]) - 1)
+                r3 = random.randint(0, len(neighbourhoods[cID]) - 1)
                 while r2 == r1:
-                    r2 = random.randint(0, len(neighbourhoods[cID]) - 2)
+                    r2 = random.randint(0, len(neighbourhoods[cID]) - 1)
                 while r3 == r1 or r3 == r2:
-                    r3 = random.randint(0, len(neighbourhoods[cID]) - 2)
+                    r3 = random.randint(0, len(neighbourhoods[cID]) - 1)
 
                 parent_3[0] = directionalArchive[r1].curr_sol
                 parent_3[1] = directionalArchive[r2].curr_sol
@@ -342,7 +343,7 @@ class DECMO2(Algorithm[S, R]):
 
             if mix == 0:
                 mix = self.mix_interval
-                combi = pool_1 + pool_2 + offspringPop3
+                combi = combi + pool_1 + pool_2 + offspringPop3
                 print("Combi size: " + str(len(combi)))
 
                 combi = self.r.replace(
@@ -436,7 +437,8 @@ class DECMO2(Algorithm[S, R]):
                 current_gen = newGen
 
         # return the final combined non-dominated set of maximum size = (populationSize * 2)
-        combiAll: List[FloatSolution] = pool_1 + pool_2 + pool_A
+        combiAll: List[FloatSolution] = []
+        combiAll = combiAll + pool_1 + pool_2 + pool_A
         combiAll = self.r.replace(
             combiAll[: self.population_size * 2], combiAll[self.population_size * 2 :]
         )
@@ -600,7 +602,7 @@ class DECMO2(Algorithm[S, R]):
         return max
 
     def __update_extreme_values(self, sol: FloatSolution):
-        for i in range(sol.number_of_objectives):
+        for i in range(self.problem.number_of_objectives):
             objValue = sol.objectives[i]
             if objValue < self.extreme_values[self.MIN_VALUES][i]:
                 self.extreme_values[self.MIN_VALUES][i] = objValue
