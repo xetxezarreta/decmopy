@@ -35,7 +35,7 @@ class DECMO2(Algorithm[S, R]):
         self,
         problem: Problem,
         dominance_comparator: Comparator = store.default_comparator,
-        max_iterations: int = 250,
+        max_evaluations: int = 250,
         individual_population_size: int = 100,
         report_interval: int = 100,
         dataDirectory: str = "./weigths",
@@ -43,7 +43,7 @@ class DECMO2(Algorithm[S, R]):
         super().__init__()
         self.problem = problem
         self.population_size = individual_population_size
-        self.max_iterations = max_iterations
+        self.max_evaluations = max_evaluations
         self.report_interval = report_interval
         self.dataDirectory = dataDirectory
         self.mix_interval = 1
@@ -184,7 +184,7 @@ class DECMO2(Algorithm[S, R]):
             current_gen = cGen
 
         # the main loop of the algorithm
-        while evaluations < self.max_iterations:
+        while evaluations < self.max_evaluations:
             offspringPop1: List[FloatSolution] = []
             offspringPop2: List[FloatSolution] = []
             offspringPop3: List[FloatSolution] = []
@@ -349,10 +349,10 @@ class DECMO2(Algorithm[S, R]):
                     combi[:nrOfDirectionalSolutionsToEvolve],
                     combi[nrOfDirectionalSolutionsToEvolve:],
                 )
-                
+
                 insertionRate[0] /= self.mix_interval
                 insertionRate[1] /= self.mix_interval
-                if insertionRate[2]!= None:
+                if insertionRate[2] != None:
                     insertionRate[2] /= self.mix_interval
 
                 print(
@@ -426,7 +426,7 @@ class DECMO2(Algorithm[S, R]):
                     + " - "
                     + str(hVal3)
                 )
-                combi = pool_1 + pool_2 + offspringPop3
+                combi = combi + pool_1 + pool_2 + offspringPop3
                 combi = self.r.replace(
                     combi[: self.population_size * 2], combi[self.population_size * 2 :]
                 )
@@ -459,7 +459,9 @@ class DECMO2(Algorithm[S, R]):
                 print(lmdb[n][0])
                 print(lmdb[n][1])
         else:
-            dataFileName = "W" + str(nrOfObjectives) + "D_" + str(dirArchiveSize) + ".dat"
+            dataFileName = (
+                "W" + str(nrOfObjectives) + "D_" + str(dirArchiveSize) + ".dat"
+            )
             data_path = self.dataDirectory + "/" + dataFileName
             print(dataFileName)
             print(data_path)

@@ -35,10 +35,10 @@ class DistribGen:
         mockRun: bool,
         filename: str,
     ):
-        distrib: List[int] = []
-        final_distrib: List[float] = []
+        distrib: List[List[int]] = []
+        final_distrib: List[List[float]] = []
 
-        for i in range(steps):
+        for i in range(steps + 1):
             sample: List[int] = []
             sample.append(i)
             distrib.append(sample)
@@ -57,7 +57,7 @@ class DistribGen:
                 sum = 0
                 for i in range(len(sample)):
                     sum += sample[i]
-                for i in range(steps):
+                for i in range(steps + 1):
                     if (modifColumn + 1) < dimensions:
                         if (sum + i) <= steps:
                             newSample: List[int] = []
