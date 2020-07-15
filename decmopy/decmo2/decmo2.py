@@ -199,8 +199,7 @@ class DECMO2(Algorithm[S, R]):
                 parent_1[0] = selection_operator_1.execute(pool_1)
                 parent_1[1] = selection_operator_1.execute(pool_1)
 
-                children = crossover_operator_1.execute(parent_1)
-                child1a = children[0]
+                child1a = crossover_operator_1.execute(parent_1)[0]
                 child1a = mutation_operator_1.execute(child1a)
 
                 child1a = self.problem.evaluate(child1a)
