@@ -38,7 +38,7 @@ class DECMO2(Algorithm[S, R]):
         max_evaluations: int = 250,
         individual_population_size: int = 100,
         report_interval: int = 100,
-        dataDirectory: str = "./weigths",
+        dataDirectory: str = "./decmopy/decmo2/weigths",
     ):
         super().__init__()
         self.problem = problem
