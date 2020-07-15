@@ -8,7 +8,7 @@ from decmo2 import DECMO2
 def main():
     problems = [
         # dtlz.DTLZ1()
-        # dtlz.DTLZ3()
+        #dtlz.DTLZ3()
         zdt.ZDT1()
     ]
 
