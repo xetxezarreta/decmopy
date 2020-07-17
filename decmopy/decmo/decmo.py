@@ -90,9 +90,9 @@ class DECMO(Algorithm[S, R]):
         mix = self.mix_interval
 
         problem = self.problem
-        #problem.reference_front = read_solutions(
+        # problem.reference_front = read_solutions(
         #    filename="./resources/" + problem.get_name() + ".3D.pf"
-        #)
+        # )
 
         # h = HyperVolume(reference_point=[1, 1, 1])
         h = HyperVolume(reference_point=[1] * self.problem.number_of_objectives)

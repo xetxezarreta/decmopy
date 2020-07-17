@@ -355,7 +355,7 @@ class DECMO2(Algorithm[S, R]):
                 if insertionRate[2] != None:
                     insertionRate[2] /= self.mix_interval
 
-                '''
+                """
                 print(
                     "Insertion rates: "
                     + str(insertionRate[0])
@@ -366,7 +366,7 @@ class DECMO2(Algorithm[S, R]):
                     + " - Test run:"
                     + str(testRun)
                 )
-                '''
+                """
                 if testRun:
                     if (insertionRate[0] > insertionRate[1]) and (
                         insertionRate[0] > insertionRate[2]
