@@ -1,8 +1,8 @@
 import datetime, time, random
 from typing import List
 
-from jmetal.core.problem import FloatProblem, IntegerProblem
-from jmetal.core.solution import FloatSolution, BinarySolution
+from jmetal.core.problem import IntegerProblem
+from jmetal.core.solution import IntegerSolution
 from decmo import DECMO
 
 
@@ -67,11 +67,11 @@ class MSI(IntegerProblem):
       self.lower_bound = self.number_of_variables * [0]
       self.upper_bound = self.number_of_variables * [3]
 
-   def evaluate(self, solution: FloatSolution) -> FloatSolution:
+   def evaluate(self, solution: IntegerSolution) -> IntegerSolution:
       # obj1: Minimizar la suma de los consumos de todos los compresores
       total_consumption = 0
       for speed in solution.variables:
-         total_consumption += SPEED_CONSUMPTION[int(round(speed))]
+         total_consumption += SPEED_CONSUMPTION[speed]
       solution.objectives[0] = total_consumption
 
       # obj2: Minimizar Cambios desde la solucion anterior
@@ -83,8 +83,8 @@ class MSI(IntegerProblem):
 
       return solution 
 
-   def create_solution(self) -> FloatSolution:
-      new_solution = FloatSolution(
+   def create_solution(self) -> IntegerSolution:
+      new_solution = IntegerSolution(
          self.lower_bound,
          self.upper_bound,
          self.number_of_objectives,
@@ -116,7 +116,7 @@ def main():
       compressors.append(comp)
    
    problem = MSI(compressors)
-   algorithm = DECMO(problem, max_iterations=250)
+   algorithm = DECMO(problem, max_iterations=5)
    result = algorithm.run()
    print(f"Algorithm: ${algorithm.get_name()}")
    print(f"Problem: ${problem.get_name()}")

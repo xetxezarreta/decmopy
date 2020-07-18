@@ -5,7 +5,7 @@ from jmetal.config import store
 from jmetal.core.algorithm import Algorithm
 from jmetal.core.problem import Problem
 from jmetal.core.quality_indicator import HyperVolume
-from jmetal.core.solution import Solution
+from jmetal.core.solution import FloatSolution
 from jmetal.operator import (
     BinaryTournamentSelection,
     DifferentialEvolutionCrossover,
@@ -68,19 +68,19 @@ class DECMO(Algorithm[S, R]):
         max_iterations = self.max_iterations
         iterations = 0
 
-        parent_1: List[Solution] = [None, None]
+        parent_1: List[FloatSolution] = [None, None]
 
         generational_hv: List[float] = []
 
         current_gen = 0
 
         """Create the initial subpopulation pools and evaluate them"""
-        pool_1: List[Solution] = []
+        pool_1: List[FloatSolution] = []
         for i in range(pool_1_size):
             pool_1.append(self.problem.create_solution())
             pool_1[i] = self.problem.evaluate(pool_1[i])
 
-        pool_2: List[Solution] = []
+        pool_2: List[FloatSolution] = []
         for i in range(pool_2_size):
             pool_2.append(self.problem.create_solution())
             pool_2[i] = self.problem.evaluate(pool_2[i])
@@ -101,16 +101,16 @@ class DECMO(Algorithm[S, R]):
 
         """The main evolutionary cycle"""
         while iterations < max_iterations:
-            combi: List[Solution] = []
+            combi: List[FloatSolution] = []
             if not initial_population:
-                offspring_pop_1: List[Solution] = []
-                offspring_pop_2: List[Solution] = []
+                offspring_pop_1: List[FloatSolution] = []
+                offspring_pop_2: List[FloatSolution] = []
                 """Evolve pool 1"""
                 for i in range(pool_1_size):
                     parent_1[0] = selection_operator_1.execute(pool_1)
                     parent_1[1] = selection_operator_1.execute(pool_1)
 
-                    child_1: Solution = crossover_operator_1.execute(parent_1)[0]
+                    child_1: FloatSolution = crossover_operator_1.execute(parent_1)[0]
                     child_1 = mutation_operator_1.execute(child_1)
 
                     child_1 = problem.evaluate(child_1)
@@ -119,7 +119,7 @@ class DECMO(Algorithm[S, R]):
                     offspring_pop_1.append(child_1)
                 """Evolve pool 2"""
                 for i in range(pool_2_size):
-                    parent_2: List[Solution] = selection_operator_2.execute(pool_2)
+                    parent_2: List[FloatSolution] = selection_operator_2.execute(pool_2)
 
                     crossover_operator_2.current_individual = pool_2[i]
                     child_2 = crossover_operator_2.execute(parent_2)
@@ -204,7 +204,7 @@ class DECMO(Algorithm[S, R]):
         """#Write runtime generational HV to file"""
 
         """Return the first non dominated front"""
-        combi_ini: List[Solution] = []
+        combi_ini: List[FloatSolution] = []
         combi_ini.extend(pool_1)
         combi_ini.extend(pool_2)
         combi_ini = self.r.replace(
@@ -222,7 +222,7 @@ class DECMO(Algorithm[S, R]):
     def create_initial_solutions(self) -> List[S]:
         pass
 
-    def evaluate(self, solutions: List[S]) -> List[S]:
+    def evaluate(self, FloatSolutions: List[S]) -> List[S]:
         pass
 
     def stopping_condition_is_met(self) -> bool:
