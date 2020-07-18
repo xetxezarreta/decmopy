@@ -1,8 +1,8 @@
 import datetime, time, random
 from typing import List
 
-from jmetal.core.problem import IntegerProblem
-from jmetal.core.solution import IntegerSolution
+from jmetal.core.problem import FloatProblem
+from jmetal.core.solution import FloatSolution
 from decmo import DECMO
 
 
@@ -33,7 +33,7 @@ class Compressor(object):
    ):
       self.id = id
       self.variable_speed = variable_speed
-      self.speed = speed #
+      self.speed = speed
       self.h_func = h_func
       self.h_func_obj = h_func_obj
       self.f_mtmto = 0
@@ -46,7 +46,10 @@ SPEED_CONSUMPTION = {
    0: 0,
    1: 25,
    2: 50,
-   3: 75   
+   3: 75, 
+   4: 100, 
+   5: 125,
+   6: 150
 }  
 
 SPEED_CAUDAL = {
@@ -54,9 +57,12 @@ SPEED_CAUDAL = {
    1: 50,
    2: 75,
    3: 100,
+   4: 125,
+   5: 150,
+   6: 175
 }
 
-class MSI(IntegerProblem):
+class MSI(FloatProblem):
    def __init__(self, compressors: List[Compressor]):
       super(MSI, self).__init__()
       self.compressors = compressors
@@ -65,26 +71,33 @@ class MSI(IntegerProblem):
       self.number_of_constraints = 0
 
       self.lower_bound = self.number_of_variables * [0]
-      self.upper_bound = self.number_of_variables * [3]
+      self.upper_bound = self.number_of_variables * [6]
 
-   def evaluate(self, solution: IntegerSolution) -> IntegerSolution:
+   def evaluate(self, solution: FloatSolution) -> FloatSolution:      
       # obj1: Minimizar la suma de los consumos de todos los compresores
       total_consumption = 0
       for speed in solution.variables:
-         total_consumption += SPEED_CONSUMPTION[speed]
+         total_consumption += SPEED_CONSUMPTION[int(round(speed))]
       solution.objectives[0] = total_consumption
-
+      
       # obj2: Minimizar Cambios desde la solucion anterior
       changes = 0
       for i, speed in enumerate(solution.variables):
          if speed != self.compressors[i].speed:
-            changes += 1
-      solution.objectives[1] = changes
+            changes += 100
+      solution.objectives[1] = changes      
+      '''
+      # obj3: Maximizar el caudal
+      caudal = 0
+      for i, speed in enumerate(solution.variables):
+         caudal += SPEED_CAUDAL[int(round(speed))]
+      solution.objectives[2] = -1.0 * caudal     
+      '''
 
       return solution 
 
-   def create_solution(self) -> IntegerSolution:
-      new_solution = IntegerSolution(
+   def create_solution(self) -> FloatSolution:
+      new_solution = FloatSolution(
          self.lower_bound,
          self.upper_bound,
          self.number_of_objectives,
@@ -116,11 +129,14 @@ def main():
       compressors.append(comp)
    
    problem = MSI(compressors)
-   algorithm = DECMO(problem, max_iterations=5)
+   algorithm = DECMO(problem, individual_population_size=100, max_iterations=250)
    result = algorithm.run()
    print(f"Algorithm: ${algorithm.get_name()}")
    print(f"Problem: ${problem.get_name()}")
    print(f"Final non-dominted solution set size: ${len(result)}")
+
+   for res in result:
+      print(res.variables)
 
 
 if __name__ == "__main__":
