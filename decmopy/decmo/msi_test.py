@@ -5,8 +5,6 @@ from jmetal.core.problem import FloatProblem
 from jmetal.core.solution import FloatSolution
 from decmo import DECMO
 
-
-
 SPEED = [i for i in range(10)]
 
 def speed_to_caudal(speed):
@@ -43,7 +41,7 @@ class Compressor(object):
       self.speed = speed
       self.h_func = h_func
       self.h_func_obj = h_func_obj
-      self.f_mtmto = 0
+      self.f_mtmto = 3
       self.caudal = speed_to_caudal(speed)
       self.consumption = speed_to_consumption(speed)
       self.avg_useful_life = (h_func_obj - h_func) / (time.time() - f_mtmto)
@@ -62,26 +60,26 @@ class MSI(FloatProblem):
 
    def evaluate(self, solution: FloatSolution) -> FloatSolution:      
       # obj1: Minimizar la suma de los consumos de todos los compresores
-      total_consumption = 0
+      consumption = 0
       for speed in solution.variables:
          rounded_speed = int(round(speed))
-         total_consumption += speed_to_consumption(rounded_speed)
-      solution.objectives[0] = total_consumption
-      
+         consumption += speed_to_consumption(rounded_speed)
+      solution.objectives[0] = consumption
+
       # obj2: Minimizar Cambios desde la solucion anterior
       changes = 0
       for i, speed in enumerate(solution.variables):
          rounded_speed = int(round(speed))
          if rounded_speed != self.compressors[i].speed:
             changes += 1
-      solution.objectives[1] = changes      
+      solution.objectives[1] = changes   
 
-      # obj3: Maximizar el caudal
-      caudal = 0
+      # obj3: Maximizar la diferencia de caudal respecto a la solución anterior
+      caudal_diff = sum(i.caudal for i in self.compressors)
       for i, speed in enumerate(solution.variables):
          rounded_speed = int(round(speed))
-         caudal += speed_to_caudal(rounded_speed)
-      solution.objectives[2] = -1.0 * caudal     
+         caudal_diff -= speed_to_caudal(rounded_speed)
+      solution.objectives[2] = caudal_diff     
 
       return solution 
 
@@ -95,7 +93,7 @@ class MSI(FloatProblem):
       new_solution.number_of_variables = self.number_of_variables
 
       new_solution.variables = \
-         [random.randint(0, 3) for _ in range(self.number_of_variables)]    
+         [random.randint(min(SPEED), max(SPEED)) for _ in range(self.number_of_variables)]    
 
       return new_solution
 
@@ -115,7 +113,7 @@ def main():
       compressors.append(comp)
    
    problem = MSI(compressors)
-   algorithm = DECMO(problem, individual_population_size=50, max_iterations=250)
+   algorithm = DECMO(problem, individual_population_size=50, max_iterations=100)
    result = algorithm.run()
    print(f"Algorithm: ${algorithm.get_name()}")
    print(f"Problem: ${problem.get_name()}")
