@@ -114,12 +114,12 @@ def main():
    
    problem = MSI(compressors)
    algorithm = DECMO(problem, individual_population_size=50, max_iterations=100)
-   result = algorithm.run()
+   results = algorithm.run()
    print(f"Algorithm: ${algorithm.get_name()}")
    print(f"Problem: ${problem.get_name()}")
-   print(f"Final non-dominted solution set size: ${len(result)}")
+   print(f"Final non-dominted solution set size: ${len(results)}")
 
-   for res in result:
+   for res in results:
       print(res.variables)
 
 
