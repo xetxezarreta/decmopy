@@ -85,7 +85,6 @@ class MSI(IntegerProblem):
       solution.objectives[0] = consumption
 
       # obj2: Maximizar la distribución de horas de funcionamiento 
-      import statistics       
       avg_useful_life = []
       for i, speed in enumerate(variables):
          if speed != 0:
@@ -134,11 +133,11 @@ class MSI(IntegerProblem):
 
 def main():
    h_func_obj = 250
-   f_mtmto = time.mktime(datetime.datetime.strptime("01/07/2020", "%d/%m/%Y").timetuple())
+   f_mtmto = time.mktime(datetime.datetime.strptime("21/06/2020", "%d/%m/%Y").timetuple())
    
    problem = MSI()
    problem.add_compressor(Compressor(1, False, 1, 1, 0, 200, h_func_obj, f_mtmto))
-   problem.add_compressor(Compressor(2, False, 1, 1, 0, 200, h_func_obj, f_mtmto))
+   problem.add_compressor(Compressor(2, False, 1, 1, 0, 249, h_func_obj, f_mtmto))
    problem.add_compressor(Compressor(3, False, 1, 1, 0, 200, h_func_obj, f_mtmto))
    problem.add_compressor(Compressor(4, True, 1, 5, 0, 200, h_func_obj, f_mtmto))
 

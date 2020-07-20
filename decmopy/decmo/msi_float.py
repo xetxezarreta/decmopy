@@ -1,4 +1,4 @@
-import datetime, time, random
+import datetime, time, random, statistics
 from typing import List
 
 from jmetal.core.problem import FloatProblem
@@ -84,7 +84,6 @@ class MSI(FloatProblem):
       solution.objectives[0] = consumption
 
       # obj2: Maximizar la distribución de horas de funcionamiento 
-      import statistics 
       ul = []
       for i, speed in enumerate(variables):
          if speed != 0:
