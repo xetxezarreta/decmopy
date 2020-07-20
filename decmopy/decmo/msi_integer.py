@@ -75,7 +75,6 @@ class MSI(IntegerProblem):
       self.upper_bound = []
 
    def evaluate(self, solution: IntegerSolution) -> IntegerSolution:      
-      #variables = [int(round(i)) for i in solution.variables]
       variables = solution.variables
 
       # obj1: Minimizar la suma de los consumos de todos los compresores
@@ -138,10 +137,10 @@ def main():
    f_mtmto = time.mktime(datetime.datetime.strptime("01/07/2020", "%d/%m/%Y").timetuple())
    
    problem = MSI()
-   problem.add_compressor(Compressor(1, False, 0, 1, 0, 20, h_func_obj, f_mtmto))
-   problem.add_compressor(Compressor(2, False, 1, 1, 0, 245, h_func_obj, f_mtmto))
-   problem.add_compressor(Compressor(3, False, 0, 1, 0, 20, h_func_obj, f_mtmto))
-   problem.add_compressor(Compressor(4, True, 0, 5, 0, 20, h_func_obj, f_mtmto))
+   problem.add_compressor(Compressor(1, False, 1, 1, 0, 200, h_func_obj, f_mtmto))
+   problem.add_compressor(Compressor(2, False, 1, 1, 0, 200, h_func_obj, f_mtmto))
+   problem.add_compressor(Compressor(3, False, 1, 1, 0, 200, h_func_obj, f_mtmto))
+   problem.add_compressor(Compressor(4, True, 1, 5, 0, 200, h_func_obj, f_mtmto))
 
    algorithm = DECMO(problem, individual_population_size=20, max_iterations=250)
    results = algorithm.run()
