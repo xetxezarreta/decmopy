@@ -30,8 +30,8 @@ class Compressor(object):
       id                Número del Compresor (identificador).
       variable_speed    Variable binaria que dice si el compresor permite velocidad variable o no.
       speed             Velocidad a la que funciona el compresor (regulable, discretizado).
-      max_speed         Velocidad máxima ala que funciona el compresor (regulable, discretizado).
-      min_speed         Velocidad máxima ala que funciona el compresor (regulable, discretizado).
+      max_speed         Velocidad máxima a la que funciona el compresor (regulable, discretizado).
+      min_speed         Velocidad máxima a la que funciona el compresor (regulable, discretizado).
       h_func            Horas de Funcionamiento desde último mantenimiento.
       h_func_obj        Horas de Funcionamiento Objetivo antes del Mantenimiento.
       f_mtmto           Fecha de Mantenimiento Programado (timestamp).
@@ -120,9 +120,9 @@ def main():
    problem = MSI()
    problem.add_compressor(Compressor(1, False, 1, 1, 0, 200, h_func_obj, f_mtmto))
    problem.add_compressor(Compressor(2, False, 1, 1, 0, 200, h_func_obj, f_mtmto))
-   problem.add_compressor(Compressor(3, True, 5, 9, 0, 200, h_func_obj, f_mtmto))
-   problem.add_compressor(Compressor(4, True, 6, 9, 0, 200, h_func_obj, f_mtmto))
-   problem.add_compressor(Compressor(5, True, 6, 9, 0, 200, h_func_obj, f_mtmto))
+   problem.add_compressor(Compressor(3, False, 0, 1, 0, 100, h_func_obj, f_mtmto))
+   problem.add_compressor(Compressor(4, False, 0, 1, 0, 100, h_func_obj, f_mtmto))
+   problem.add_compressor(Compressor(5, True, 3, 9, 0, 200, h_func_obj, f_mtmto))
 
    algorithm = DECMO(problem, individual_population_size=50, max_iterations=100)
    results = algorithm.run()
