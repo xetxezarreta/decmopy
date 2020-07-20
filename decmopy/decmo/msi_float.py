@@ -3,7 +3,7 @@ from typing import List
 
 from jmetal.core.problem import FloatProblem
 from jmetal.core.solution import FloatSolution
-from decmo import DECMO
+from decmo_float import DECMO
 
 def speed_to_caudal(speed):
    return speed * 20
