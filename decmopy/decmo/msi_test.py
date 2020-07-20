@@ -83,8 +83,9 @@ class MSI(FloatProblem):
       for i, speed in enumerate(solution.variables):
          rounded_speed = int(round(speed))
          if speed != 0:
-            avg_useful_life += self.compressors[i].avg_useful_life
+            avg_useful_life += (0.5 - self.compressors[i].avg_useful_life)
       solution.objectives[1] = -1.0 * avg_useful_life
+      solution.objectives[1] = avg_useful_life
 
       # obj3: Minimizar Cambios desde la solucion anterior
       changes = 0
@@ -117,9 +118,9 @@ def main():
    f_mtmto = time.mktime(datetime.datetime.strptime("01/07/2020", "%d/%m/%Y").timetuple())
    
    problem = MSI()
-   problem.add_compressor(Compressor(1, False, 1, 1, 0, 100, h_func_obj, f_mtmto))
-   problem.add_compressor(Compressor(2, False, 1, 1, 0, 100, h_func_obj, f_mtmto))
-   problem.add_compressor(Compressor(3, True, 6, 9, 0, 200, h_func_obj, f_mtmto))
+   problem.add_compressor(Compressor(1, False, 1, 1, 0, 200, h_func_obj, f_mtmto))
+   problem.add_compressor(Compressor(2, False, 1, 1, 0, 200, h_func_obj, f_mtmto))
+   problem.add_compressor(Compressor(3, True, 5, 9, 0, 200, h_func_obj, f_mtmto))
    problem.add_compressor(Compressor(4, True, 6, 9, 0, 200, h_func_obj, f_mtmto))
    problem.add_compressor(Compressor(5, True, 6, 9, 0, 200, h_func_obj, f_mtmto))
 
@@ -145,7 +146,7 @@ def main():
 
       if global_caudal <= caudal and s not in final_solutions:
          final_solutions.append(s)
-         print(s, "Caudal Global: ", str(global_caudal), "Caudal Solución: ", str(caudal), "Consumo Global: ", str(global_consumption), "Consumo Solución: ", str(consumption))  
+         print(s, "Caudal Instalación:", str(global_caudal), "Caudal Solución:", str(caudal), "Consumo Instalación:", str(global_consumption), "Consumo Solución:", str(consumption))  
 
 if __name__ == "__main__":
     main()
