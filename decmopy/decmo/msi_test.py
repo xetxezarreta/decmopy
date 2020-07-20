@@ -42,7 +42,7 @@ class Compressor(object):
    def __init__(
       self,
       id: int,
-      variable_speed: int,
+      variable_speed: bool,
       speed: int,
       max_speed: int,
       min_speed: int,
@@ -75,10 +75,7 @@ class MSI(FloatProblem):
 
    def evaluate(self, solution: FloatSolution) -> FloatSolution:      
       # obj1: Minimizar la suma de los consumos de todos los compresores
-      consumption = 0
-      for speed in solution.variables:
-         rounded_speed = int(round(speed))
-         consumption += speed_to_consumption(rounded_speed)
+      consumption = speeds_to_consumption([int(round(i)) for i in solution.variables])
       solution.objectives[0] = consumption
 
       # obj2: Maximizar la distribución de horas de funcionamiento 
@@ -120,10 +117,11 @@ def main():
    f_mtmto = time.mktime(datetime.datetime.strptime("01/07/2020", "%d/%m/%Y").timetuple())
    
    problem = MSI()
-   problem.add_compressor(Compressor(1, 0, 1, 1, 0, 100, h_func_obj, f_mtmto))
-   problem.add_compressor(Compressor(2, 0, 1, 1, 0, 100, h_func_obj, f_mtmto))
-   problem.add_compressor(Compressor(3, 1, 2, 9, 0, 200, h_func_obj, f_mtmto))
-   problem.add_compressor(Compressor(4, 1, 2, 9, 0, 200, h_func_obj, f_mtmto))
+   problem.add_compressor(Compressor(1, False, 1, 1, 0, 100, h_func_obj, f_mtmto))
+   problem.add_compressor(Compressor(2, False, 1, 1, 0, 100, h_func_obj, f_mtmto))
+   problem.add_compressor(Compressor(3, True, 6, 9, 0, 200, h_func_obj, f_mtmto))
+   problem.add_compressor(Compressor(4, True, 6, 9, 0, 200, h_func_obj, f_mtmto))
+   problem.add_compressor(Compressor(5, True, 6, 9, 0, 200, h_func_obj, f_mtmto))
 
    algorithm = DECMO(problem, individual_population_size=50, max_iterations=100)
    results = algorithm.run()
