@@ -74,32 +74,32 @@ class MSI(FloatProblem):
       self.upper_bound = []
 
    def evaluate(self, solution: FloatSolution) -> FloatSolution:      
+      variables = [int(round(i)) for i in solution.variables]
       # obj1: Minimizar la suma de los consumos de todos los compresores
-      consumption = speeds_to_consumption([int(round(i)) for i in solution.variables])
+      consumption = 0
+      for speed in variables:
+         if speed != 0:
+            consumption += speed_to_consumption(speed)
       solution.objectives[0] = consumption
 
       # obj2: Maximizar la distribución de horas de funcionamiento 
       avg_useful_life = 0
-      for i, speed in enumerate(solution.variables):
-         rounded_speed = int(round(speed))
+      for i, speed in enumerate(variables):
          if speed != 0:
-            avg_useful_life += (0.5 - self.compressors[i].avg_useful_life)
-      solution.objectives[1] = -1.0 * avg_useful_life
-      solution.objectives[1] = avg_useful_life
+            avg_useful_life += self.compressors[i].avg_useful_life
+      solution.objectives[1] = -1.0 * (avg_useful_life)
 
       # obj3: Minimizar Cambios desde la solucion anterior
       changes = 0
-      for i, speed in enumerate(solution.variables):
-         rounded_speed = int(round(speed))
-         if rounded_speed != self.compressors[i].speed:
+      for i, speed in enumerate(variables):
+         if speed != self.compressors[i].speed:
             changes += 1
       solution.objectives[2] = changes  
 
       # obj4: Maximizar la diferencia de caudal respecto a la solución anterior
       caudal_diff = sum(i.caudal for i in self.compressors)
-      for i, speed in enumerate(solution.variables):
-         rounded_speed = int(round(speed))
-         caudal_diff -= speed_to_caudal(rounded_speed)
+      for i, speed in enumerate(variables):
+         caudal_diff -= speed_to_caudal(speed)
       solution.objectives[3] = caudal_diff     
 
       return solution 
@@ -118,12 +118,12 @@ def main():
    f_mtmto = time.mktime(datetime.datetime.strptime("01/07/2020", "%d/%m/%Y").timetuple())
    
    problem = MSI()
-   problem.add_compressor(Compressor(1, False, 1, 1, 0, 200, h_func_obj, f_mtmto))
-   problem.add_compressor(Compressor(2, False, 1, 1, 0, 200, h_func_obj, f_mtmto))
-   problem.add_compressor(Compressor(3, False, 0, 1, 0, 100, h_func_obj, f_mtmto))
-   problem.add_compressor(Compressor(4, True, 3, 5, 0, 200, h_func_obj, f_mtmto))
+   problem.add_compressor(Compressor(1, False, 1, 1, 0, 1000, h_func_obj, f_mtmto))
+   problem.add_compressor(Compressor(2, False, 1, 1, 0, 1000, h_func_obj, f_mtmto))
+   problem.add_compressor(Compressor(3, False, 1, 1, 0, 1000, h_func_obj, f_mtmto))
+   problem.add_compressor(Compressor(4, True, 0, 5, 0, 20, h_func_obj, f_mtmto))
 
-   algorithm = DECMO(problem, individual_population_size=100, max_iterations=250)
+   algorithm = DECMO(problem, individual_population_size=50, max_iterations=100)
    results = algorithm.run()
    print(f"Algorithm: ${algorithm.get_name()}")
    print(f"Problem: ${problem.get_name()}")
