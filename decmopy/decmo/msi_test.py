@@ -121,10 +121,9 @@ def main():
    problem.add_compressor(Compressor(1, False, 1, 1, 0, 200, h_func_obj, f_mtmto))
    problem.add_compressor(Compressor(2, False, 1, 1, 0, 200, h_func_obj, f_mtmto))
    problem.add_compressor(Compressor(3, False, 0, 1, 0, 100, h_func_obj, f_mtmto))
-   problem.add_compressor(Compressor(4, False, 0, 1, 0, 100, h_func_obj, f_mtmto))
-   problem.add_compressor(Compressor(5, True, 3, 9, 0, 200, h_func_obj, f_mtmto))
+   problem.add_compressor(Compressor(4, True, 3, 5, 0, 200, h_func_obj, f_mtmto))
 
-   algorithm = DECMO(problem, individual_population_size=50, max_iterations=100)
+   algorithm = DECMO(problem, individual_population_size=100, max_iterations=250)
    results = algorithm.run()
    print(f"Algorithm: ${algorithm.get_name()}")
    print(f"Problem: ${problem.get_name()}")
