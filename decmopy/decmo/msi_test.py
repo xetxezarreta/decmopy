@@ -57,7 +57,7 @@ class Compressor(object):
       self.min_speed = min_speed
       self.h_func = h_func
       self.h_func_obj = h_func_obj
-      self.f_mtmto = 3
+      self.f_mtmto = f_mtmto
       self.caudal = speed_to_caudal(speed)
       self.consumption = speed_to_consumption(speed)
       self.avg_useful_life = (h_func_obj - h_func) / (time.time() - f_mtmto)
@@ -75,6 +75,7 @@ class MSI(FloatProblem):
 
    def evaluate(self, solution: FloatSolution) -> FloatSolution:      
       variables = [int(round(i)) for i in solution.variables]
+
       # obj1: Minimizar la suma de los consumos de todos los compresores
       consumption = 0
       for speed in variables:
@@ -84,10 +85,15 @@ class MSI(FloatProblem):
 
       # obj2: Maximizar la distribución de horas de funcionamiento 
       avg_useful_life = 0
+      j = 0
       for i, speed in enumerate(variables):
          if speed != 0:
             avg_useful_life += self.compressors[i].avg_useful_life
-      solution.objectives[1] = -1.0 * (avg_useful_life)
+            j += 1
+      if j is 0:
+         solution.objectives[1] = -1.0 * (avg_useful_life)
+      else:
+         solution.objectives[1] = -1.0 * (avg_useful_life / j)
 
       # obj3: Minimizar Cambios desde la solucion anterior
       changes = 0
@@ -118,9 +124,9 @@ def main():
    f_mtmto = time.mktime(datetime.datetime.strptime("01/07/2020", "%d/%m/%Y").timetuple())
    
    problem = MSI()
-   problem.add_compressor(Compressor(1, False, 1, 1, 0, 1000, h_func_obj, f_mtmto))
-   problem.add_compressor(Compressor(2, False, 1, 1, 0, 1000, h_func_obj, f_mtmto))
-   problem.add_compressor(Compressor(3, False, 1, 1, 0, 1000, h_func_obj, f_mtmto))
+   problem.add_compressor(Compressor(1, False, 1, 1, 0, 20, h_func_obj, f_mtmto))
+   problem.add_compressor(Compressor(2, False, 1, 1, 0, 250, h_func_obj, f_mtmto))
+   problem.add_compressor(Compressor(3, False, 1, 1, 0, 250, h_func_obj, f_mtmto))
    problem.add_compressor(Compressor(4, True, 0, 5, 0, 20, h_func_obj, f_mtmto))
 
    algorithm = DECMO(problem, individual_population_size=50, max_iterations=100)
