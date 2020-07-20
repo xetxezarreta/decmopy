@@ -6,7 +6,7 @@ Python implementation of DECMO algorithms inside the JMetalPy 1.5.5 framework.
 
 ## Installation
 ```bash
-pip insall -r requirements.txt
+pip install -r requirements.txt
 ```
 
 ## Run

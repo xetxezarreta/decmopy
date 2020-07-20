@@ -84,6 +84,17 @@ class MSI(FloatProblem):
       solution.objectives[0] = consumption
 
       # obj2: Maximizar la distribución de horas de funcionamiento 
+      import statistics 
+      ul = []
+      for i, speed in enumerate(variables):
+         if speed != 0:
+            ul.append(self.compressors[i].avg_useful_life)
+      if len(ul) <= 1:
+         stdv = 0
+      else:
+         stdv = statistics.stdev(ul)
+      solution.objectives[1] = stdv
+      '''
       avg_useful_life = 0
       j = 0
       for i, speed in enumerate(variables):
@@ -94,7 +105,7 @@ class MSI(FloatProblem):
          solution.objectives[1] = -1.0 * (avg_useful_life)
       else:
          solution.objectives[1] = -1.0 * (avg_useful_life / j)
-
+      '''
       # obj3: Minimizar Cambios desde la solucion anterior
       changes = 0
       for i, speed in enumerate(variables):
@@ -124,10 +135,10 @@ def main():
    f_mtmto = time.mktime(datetime.datetime.strptime("01/07/2020", "%d/%m/%Y").timetuple())
    
    problem = MSI()
-   problem.add_compressor(Compressor(1, False, 1, 1, 0, 20, h_func_obj, f_mtmto))
-   problem.add_compressor(Compressor(2, False, 1, 1, 0, 250, h_func_obj, f_mtmto))
-   problem.add_compressor(Compressor(3, False, 1, 1, 0, 250, h_func_obj, f_mtmto))
-   problem.add_compressor(Compressor(4, True, 0, 5, 0, 20, h_func_obj, f_mtmto))
+   problem.add_compressor(Compressor(1, False, 1, 1, 0, 200, h_func_obj, f_mtmto))
+   problem.add_compressor(Compressor(2, False, 1, 1, 0, 200, h_func_obj, f_mtmto))
+   problem.add_compressor(Compressor(3, False, 1, 1, 0, 200, h_func_obj, f_mtmto))
+   problem.add_compressor(Compressor(4, True, 0, 5, 0, 0, h_func_obj, f_mtmto))
 
    algorithm = DECMO(problem, individual_population_size=50, max_iterations=100)
    results = algorithm.run()
