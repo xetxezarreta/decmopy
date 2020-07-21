@@ -8,20 +8,22 @@ Python implementation of DECMO algorithms inside the JMetalPy 1.5.5 framework.
 ```bash
 pip install -r requirements.txt
 ```
-
 ## Run
 ##### DECMO
 ```bash
+git clone https://github.com/xetxezarreta/decmopy.git
+cd decmopy
 python decmopy/decmo/test_decmo.py
 ```
 ##### DECMO2
 ```bash
+git clone https://github.com/xetxezarreta/decmopy.git
+cd decmopy
 python decmopy/decmo2/test_decmo2.py
 ```
-
 #### MSI
-
 ```bash
-cd decmopy/decmo/msi
+git clone https://github.com/xetxezarreta/decmopy.git
+cd decmopy/decmopy/decmo/msi
 python msi_main.py <caudal_consigna> <data_path>
 ```
