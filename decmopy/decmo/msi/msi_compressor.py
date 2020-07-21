@@ -19,6 +19,14 @@ def speeds_to_consumption(speeds: List[int]):
         consumption += speed_to_consumption(s)
     return consumption
 
+def solution_changes(compressors, solution):
+    changes = 0
+    for i, speed in enumerate(solution.variables):
+        if (speed != compressors[i].speed) and (speed == 0 or compressors[i].speed == 0):
+            changes += 1
+    return changes
+
+
 class Compressor(object):
     """Compresor.
 

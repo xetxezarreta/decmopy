@@ -1,6 +1,11 @@
 import sys, pandas
 
-from msi_compressor import Compressor, speeds_to_caudal, speeds_to_consumption
+from msi_compressor import (
+   Compressor, 
+   speeds_to_caudal, 
+   speeds_to_consumption, 
+   solution_changes
+)
 from msi_problem import MSI
 from decmo_integer import DECMO
 
@@ -29,9 +34,10 @@ def main(argv):
          vars = [int(round(i)) for i in r.variables]
          caudal = speeds_to_caudal(vars)
          consumption = speeds_to_consumption(vars)      
+         changes = solution_changes(problem.compressors, r)
          if vars not in final_solutions:
             final_solutions.append(vars)
-            print(vars, "Caudal:", str(caudal), "Consumo:", str(consumption))  
+            print(vars, "Caudal:", str(caudal), "Consumo:", str(consumption), "Cambios:", str(changes))  
    except Exception as e:
       print(e)
 
