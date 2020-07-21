@@ -37,7 +37,7 @@ class Compressor(object):
       h_func_obj        Horas de Funcionamiento Objetivo antes del Mantenimiento.
       f_mtmto           Fecha de Mantenimiento Programado (timestamp).
       caudal            Caudal en m3 de aire que da el Compresor a una velocidad determinada.
-      consumption       Consumo del compresor.
+      consumption       Consumo del compresor (Kw/m3 aire).
    """
 
    def __init__(
@@ -61,7 +61,7 @@ class Compressor(object):
       self.f_mtmto = f_mtmto
       self.caudal = speed_to_caudal(speed)
       self.consumption = speed_to_consumption(speed)
-      self.avg_useful_life = (h_func_obj - h_func) / (time.time() - f_mtmto)
+      self.avg_useful_life = (h_func_obj - h_func) / (f_mtmto - time.time())
 
 
 class MSI(IntegerProblem):
@@ -88,14 +88,13 @@ class MSI(IntegerProblem):
       avg_useful_life = []
       for i, speed in enumerate(variables):
          if speed != 0:
-            avg_useful_life.append(self.compressors[i].avg_useful_life) 
-      
+            avg_useful_life.append(self.compressors[i].avg_useful_life)       
       if len(avg_useful_life) is 0:
          solution.objectives[1] = 0
       elif len(avg_useful_life) is 1:
-         solution.objectives[1] = -1.0 * avg_useful_life[0]
+         solution.objectives[1] = -1 * avg_useful_life[0]
       else:
-         solution.objectives[1] = -1.0 * statistics.mean(avg_useful_life)
+         solution.objectives[1] = -1 * statistics.mean(avg_useful_life)
 
       # obj3: Minimizar Cambios desde la solucion anterior
       changes = 0
@@ -105,13 +104,14 @@ class MSI(IntegerProblem):
       solution.objectives[2] = changes  
 
       # obj4: Maximizar la diferencia de caudal respecto a la solución anterior
-      caudal_diff = sum(i.caudal for i in self.compressors)
+      caudal = 0
       for i, speed in enumerate(variables):
-         caudal_diff -= speed_to_caudal(speed)
-      solution.objectives[3] = caudal_diff     
+         caudal += speed_to_caudal(speed)
+      caudal_diff = caudal - sum(i.caudal for i in self.compressors)
+      solution.objectives[3] = -1 * caudal_diff         
 
       return solution 
-
+      
    def create_solution(self) -> IntegerSolution:
       new_solution = IntegerSolution(
          self.lower_bound,
@@ -133,13 +133,13 @@ class MSI(IntegerProblem):
 
 def main():
    h_func_obj = 250
-   f_mtmto = time.mktime(datetime.datetime.strptime("21/06/2020", "%d/%m/%Y").timetuple())
+   f_mtmto = time.mktime(datetime.datetime.strptime("31/08/2020", "%d/%m/%Y").timetuple())
    
    problem = MSI()
-   problem.add_compressor(Compressor(1, False, 1, 1, 0, 200, h_func_obj, f_mtmto))
-   problem.add_compressor(Compressor(2, False, 1, 1, 0, 249, h_func_obj, f_mtmto))
-   problem.add_compressor(Compressor(3, False, 1, 1, 0, 200, h_func_obj, f_mtmto))
-   problem.add_compressor(Compressor(4, True, 1, 5, 0, 200, h_func_obj, f_mtmto))
+   problem.add_compressor(Compressor(1, False, 0, 1, 0, 249, h_func_obj, f_mtmto))
+   problem.add_compressor(Compressor(2, False, 0, 1, 0, 100, h_func_obj, f_mtmto))
+   problem.add_compressor(Compressor(3, False, 0, 1, 0, 100, h_func_obj, f_mtmto))
+   problem.add_compressor(Compressor(4, True, 3, 5, 0, 100, h_func_obj, f_mtmto))
 
    algorithm = DECMO(problem, individual_population_size=20, max_iterations=250)
    results = algorithm.run()
