@@ -18,3 +18,10 @@ python decmopy/decmo/test_decmo.py
 ```bash
 python decmopy/decmo2/test_decmo2.py
 ```
+
+#### MSI
+
+```bash
+cd decmopy/decmo/msi
+python msi_main.py <caudal_consigna> <data_path>
+```

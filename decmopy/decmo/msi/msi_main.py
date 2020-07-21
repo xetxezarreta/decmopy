@@ -1,0 +1,39 @@
+import sys, pandas
+
+from msi_compressor import Compressor, speeds_to_caudal, speeds_to_consumption
+from msi_problem import MSI
+from decmo_integer import DECMO
+
+# python msi_integer.py <caudal_consigna> <data_path>
+# python msi_integer.py 100 ./data.csv
+def main(argv):
+   try:
+      caudal_obj = int(argv[0])
+      data = pandas.read_csv(argv[1])
+
+      problem = MSI(caudal_obj)
+      for _, row in data.iterrows():
+         comp = Compressor(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7])
+         problem.add_compressor(comp)
+      
+      algorithm = DECMO(problem, individual_population_size=50, max_iterations=250)
+      results = algorithm.run()
+
+      print(f"Algorithm: ${algorithm.get_name()}")
+      print(f"Problem: ${problem.get_name()}")
+      print(f"Final non-dominted solution set size: ${len(results)}")
+
+      final_solutions = []
+
+      for r in results:
+         vars = [int(round(i)) for i in r.variables]
+         caudal = speeds_to_caudal(vars)
+         consumption = speeds_to_consumption(vars)      
+         if vars not in final_solutions:
+            final_solutions.append(vars)
+            print(vars, "Caudal:", str(caudal), "Consumo:", str(consumption))  
+   except Exception as e:
+      print(e)
+
+if __name__ == "__main__":
+    main(sys.argv[1:])
