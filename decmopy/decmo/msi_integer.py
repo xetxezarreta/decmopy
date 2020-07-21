@@ -3,10 +3,10 @@ from typing import List
 
 from jmetal.core.problem import IntegerProblem
 from jmetal.core.solution import IntegerSolution
-#from decmo import DECMO
+
 from decmo_integer import DECMO
 
-def speed_to_caudal(speed):
+def speed_to_caudal(speed: int):
    return speed * 20
 
 def speeds_to_caudal(speeds: List[int]):
@@ -15,7 +15,7 @@ def speeds_to_caudal(speeds: List[int]):
       caudal += speed_to_caudal(s)
    return caudal
 
-def speed_to_consumption(speed):
+def speed_to_consumption(speed: int):
    return speed * 10
 
 def speeds_to_consumption(speeds: List[int]):
@@ -35,7 +35,7 @@ class Compressor(object):
       min_speed         Velocidad máxima a la que funciona el compresor (regulable, discretizado).
       h_func            Horas de Funcionamiento desde último mantenimiento.
       h_func_obj        Horas de Funcionamiento Objetivo antes del Mantenimiento.
-      f_mtmto           Fecha de Mantenimiento Programado (timestamp).
+      f_mtmto           Fecha de Mantenimiento Programado (dd/mm/yyyy).
       caudal            Caudal en m3 de aire que da el Compresor a una velocidad determinada.
       consumption       Consumo del compresor (Kw/m3 aire).
    """
@@ -49,7 +49,7 @@ class Compressor(object):
       min_speed: int,
       h_func: float,
       h_func_obj: float,
-      f_mtmto: float,
+      f_mtmto: str,
    ):
       self.id = id
       self.variable_speed = variable_speed
@@ -58,19 +58,22 @@ class Compressor(object):
       self.min_speed = min_speed
       self.h_func = h_func
       self.h_func_obj = h_func_obj
-      self.f_mtmto = f_mtmto
+      self.f_mtmto = f_mtmto = time.mktime(datetime.datetime.strptime(f_mtmto, "%d/%m/%Y").timetuple())
       self.caudal = speed_to_caudal(speed)
       self.consumption = speed_to_consumption(speed)
-      self.avg_useful_life = (h_func_obj - h_func) / (f_mtmto - time.time())
+      self.avg_useful_life = (h_func_obj - h_func) / (self.f_mtmto - time.time())
 
 
 class MSI(IntegerProblem):
-   def __init__(self):
+   def __init__(self, caudal_obj: float):
       super(MSI, self).__init__()
+
+      self.caudal_obj = caudal_obj
+
       self.compressors = []
       self.number_of_variables = 0
-      self.number_of_objectives = 4
-      self.number_of_constraints = 0
+      self.number_of_objectives = 3
+      self.number_of_constraints = 2
       self.lower_bound = []
       self.upper_bound = []
 
@@ -88,29 +91,43 @@ class MSI(IntegerProblem):
       avg_useful_life = []
       for i, speed in enumerate(variables):
          if speed != 0:
-            avg_useful_life.append(self.compressors[i].avg_useful_life)       
-      if len(avg_useful_life) is 0:
+            avg_useful_life.append(self.compressors[i].avg_useful_life) 
+      if len(avg_useful_life) == 0:
          solution.objectives[1] = 0
-      elif len(avg_useful_life) is 1:
+      elif len(avg_useful_life) == 1:
          solution.objectives[1] = -1 * avg_useful_life[0]
       else:
          solution.objectives[1] = -1 * statistics.mean(avg_useful_life)
 
-      # obj3: Minimizar Cambios desde la solucion anterior
+      # obj3: Minimizar Cambios desde la solucion anterior (encendido/apagado)
       changes = 0
       for i, speed in enumerate(variables):
-         if speed != self.compressors[i].speed:
+         if (speed != self.compressors[i].speed) and (speed == 0 or self.compressors[i].speed == 0):
             changes += 1
       solution.objectives[2] = changes  
 
-      # obj4: Maximizar la diferencia de caudal respecto a la solución anterior
-      caudal = 0
-      for i, speed in enumerate(variables):
-         caudal += speed_to_caudal(speed)
-      caudal_diff = caudal - sum(i.caudal for i in self.compressors)
-      solution.objectives[3] = -1 * caudal_diff         
+      self.__evaluate_constrains(solution)
 
       return solution 
+
+   def __evaluate_constrains(self, solution: IntegerSolution) -> None:
+      '''
+      Every constraint must be expressed as an unequality of type expression >=0.0. 
+      When expression < 0.0 then it is considered as a constraint violation
+      '''
+      variables = solution.variables
+      # constrain 1: caudal igual o superior al indicado
+      sol_caudal = sum([speed_to_caudal(i) for i in variables])
+      diff_caudal = sol_caudal - self.caudal_obj
+      solution.constraints[0] = diff_caudal
+
+      # constrain 2: al menos un compresor variable en marcha
+      var_running = -1
+      for comp in self.compressors:
+         if comp.variable_speed:
+            var_running = 1
+            break
+      solution.constraints[1] = var_running
       
    def create_solution(self) -> IntegerSolution:
       new_solution = IntegerSolution(
@@ -132,27 +149,22 @@ class MSI(IntegerProblem):
       return "MSI"
 
 def main():
-   h_func_obj = 250
-   f_mtmto = time.mktime(datetime.datetime.strptime("31/08/2020", "%d/%m/%Y").timetuple())
-   
-   problem = MSI()
-   problem.add_compressor(Compressor(1, False, 0, 1, 0, 249, h_func_obj, f_mtmto))
-   problem.add_compressor(Compressor(2, False, 0, 1, 0, 100, h_func_obj, f_mtmto))
-   problem.add_compressor(Compressor(3, False, 0, 1, 0, 100, h_func_obj, f_mtmto))
-   problem.add_compressor(Compressor(4, True, 3, 5, 0, 100, h_func_obj, f_mtmto))
+   h_func = [100, 100, 249, 100]
+   h_func_obj = [250, 250, 250, 250]
+   f_mtmto = ["31/08/2020", "31/08/2020", "31/08/2020", "31/08/2020"]  
+   caudal_obj = 50
 
-   algorithm = DECMO(problem, individual_population_size=20, max_iterations=250)
+   problem = MSI(caudal_obj)
+   problem.add_compressor(Compressor(1, False, 1, 1, 0, h_func[0], h_func_obj[0], f_mtmto[0]))
+   problem.add_compressor(Compressor(2, False, 0, 1, 0, h_func[1], h_func_obj[1], f_mtmto[1]))
+   problem.add_compressor(Compressor(3, True, 0, 5, 0, h_func[2], h_func_obj[2], f_mtmto[2]))
+   problem.add_compressor(Compressor(4, True, 0, 5, 0, h_func[3], h_func_obj[3], f_mtmto[3]))
+
+   algorithm = DECMO(problem, individual_population_size=50, max_iterations=250)
    results = algorithm.run()
    print(f"Algorithm: ${algorithm.get_name()}")
    print(f"Problem: ${problem.get_name()}")
    print(f"Final non-dominted solution set size: ${len(results)}")
-
-   global_caudal = 0
-   global_consumption = 0
-   for c in problem.compressors:
-      if c.speed != 0:
-         global_caudal += speed_to_caudal(c.speed)
-         global_consumption += speed_to_consumption(c.speed)
 
    final_solutions = []
 
@@ -161,9 +173,9 @@ def main():
       caudal = speeds_to_caudal(s)
       consumption = speeds_to_consumption(s)
 
-      if global_caudal <= caudal and s not in final_solutions:
+      if s not in final_solutions:
          final_solutions.append(s)
-         print(s, "Caudal Instalación:", str(global_caudal), "Caudal Solución:", str(caudal), "Consumo Instalación:", str(global_consumption), "Consumo Solución:", str(consumption))  
+         print(s, "Caudal Solución:", str(caudal), "Consumo Solución:", str(consumption))  
 
 if __name__ == "__main__":
     main()

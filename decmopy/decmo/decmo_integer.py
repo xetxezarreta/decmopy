@@ -158,21 +158,21 @@ class DECMO(Algorithm[S, R]):
                     """Time to perform fitness sharing"""
                     mix = self.mix_interval
                     combi = combi + pool_1 + pool_2
-                    print("Combi size: ", len(combi))
+                    #print("Combi size: ", len(combi))
                     """pool1size/10"""
 
                     combi = self.r.replace(
                         combi[: int(pool_1_size / 10)],
                         combi[int(pool_1_size / 10) : len(combi)],
                     )
-
+                    '''
                     print(
                         "Sizes: ",
                         len(pool_1) + len(combi),
                         len(pool_2) + len(combi),
                         "\n",
                     )
-
+                    '''
                     pool_1 = self.r.replace(pool_1, combi)
 
                     pool_2 = self.r.replace(pool_2, combi)
@@ -185,8 +185,8 @@ class DECMO(Algorithm[S, R]):
             hval_1 = h.compute([s.objectives for s in pool_1])
             hval_2 = h.compute([s.objectives for s in pool_2])
             print("Iterations: ", str(iterations))
-            print("hval_1: ", str(hval_1))
-            print("hval_2: ", str(hval_2), "\n")
+            #print("hval_1: ", str(hval_1))
+            #print("hval_2: ", str(hval_2), "\n")
 
             new_gen = int(evaluations / self.report_interval)
             if new_gen > current_gen:
