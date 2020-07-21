@@ -123,10 +123,10 @@ class MSI(IntegerProblem):
 
       # constrain 2: al menos un compresor variable en marcha
       var_running = -1
-      for comp in self.compressors:
-         if comp.variable_speed:
+      for i, speed in enumerate(variables):
+         if speed != 0 and self.compressors[i].variable_speed:
             var_running = 1
-            break
+            break     
       solution.constraints[1] = var_running
       
    def create_solution(self) -> IntegerSolution:
@@ -149,7 +149,7 @@ class MSI(IntegerProblem):
       return "MSI"
 
 def main():
-   h_func = [100, 100, 100, 100]
+   h_func = [100, 100, 100, 251]
    h_func_obj = [250, 250, 250, 250]
    f_mtmto = ["31/08/2020", "31/08/2020", "31/08/2020", "31/08/2020"]  
    caudal_obj = 100
