@@ -180,13 +180,14 @@ class DECMO(Algorithm[S, R]):
             if initial_population:
                 initial_population = False
 
-            iterations += 1
-
+            iterations += 1            
+            print("Iterations: ", str(iterations))
+            '''
             hval_1 = h.compute([s.objectives for s in pool_1])
             hval_2 = h.compute([s.objectives for s in pool_2])
-            print("Iterations: ", str(iterations))
-            #print("hval_1: ", str(hval_1))
-            #print("hval_2: ", str(hval_2), "\n")
+            print("hval_1: ", str(hval_1))
+            print("hval_2: ", str(hval_2), "\n")
+            '''
 
             new_gen = int(evaluations / self.report_interval)
             if new_gen > current_gen:
