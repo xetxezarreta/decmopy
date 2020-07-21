@@ -149,14 +149,14 @@ class MSI(IntegerProblem):
       return "MSI"
 
 def main():
-   h_func = [100, 100, 249, 100]
+   h_func = [100, 100, 100, 100]
    h_func_obj = [250, 250, 250, 250]
    f_mtmto = ["31/08/2020", "31/08/2020", "31/08/2020", "31/08/2020"]  
-   caudal_obj = 50
+   caudal_obj = 100
 
    problem = MSI(caudal_obj)
    problem.add_compressor(Compressor(1, False, 1, 1, 0, h_func[0], h_func_obj[0], f_mtmto[0]))
-   problem.add_compressor(Compressor(2, False, 0, 1, 0, h_func[1], h_func_obj[1], f_mtmto[1]))
+   problem.add_compressor(Compressor(2, False, 1, 1, 0, h_func[1], h_func_obj[1], f_mtmto[1]))
    problem.add_compressor(Compressor(3, True, 0, 5, 0, h_func[2], h_func_obj[2], f_mtmto[2]))
    problem.add_compressor(Compressor(4, True, 0, 5, 0, h_func[3], h_func_obj[3], f_mtmto[3]))
 
