@@ -63,3 +63,4 @@ class Compressor(object):
         self.caudal = speed_to_caudal(speed) # Caudal en m3 de aire que da el Compresor a una velocidad determinada.
         self.consumption = speed_to_consumption(speed) # Consumo del compresor (Kw/m3 aire).
         self.avg_useful_life = (h_func_obj - h_func) / (self.f_mtmto - time.time())
+        
