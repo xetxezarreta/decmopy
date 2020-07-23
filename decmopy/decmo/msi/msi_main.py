@@ -35,7 +35,7 @@ def main(argv):
          caudal = speeds_to_caudal(vars)
          consumption = speeds_to_consumption(vars)      
          changes = solution_changes(problem.compressors, r)
-         if vars not in final_solutions:
+         if (caudal_obj <= caudal) and (vars not in final_solutions):
             final_solutions.append(vars)
             print(vars, "Caudal:", str(caudal), "Consumo:", str(consumption), "Cambios:", str(changes))  
    except Exception as e:
