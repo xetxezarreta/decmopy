@@ -36,12 +36,12 @@ def main(argv):
 
       for r in results:
          vars = [int(round(i)) for i in r.variables]
-         flow = speeds_to_flow(vars)
-         consumption = speeds_to_consumption(vars)      
-         changes = solution_changes(problem.compressors, r)
-         if (flow_obj <= flow) and (vars not in final_solutions):
+         sol_flow = speeds_to_flow(vars)
+         sol_consumption = speeds_to_consumption(vars)      
+         sol_changes = solution_changes(problem.compressors, r)
+         if (flow_obj <= sol_flow) and (vars not in final_solutions):
             final_solutions.append(vars)
-            print(vars, "Caudal:", str(flow), "Consumo:", str(consumption), "Cambios:", str(changes))  
+            print(vars, "Caudal:", str(sol_flow), "Consumo:", str(sol_consumption), "Cambios:", str(sol_changes))  
       
       if len(final_solutions) == 0:
          print("No hay soluciones para el caudal objetivo " + str(flow_obj))      
