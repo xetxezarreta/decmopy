@@ -15,9 +15,9 @@
         "speed": 1,
         "min_speed": 0,
         "max_speed": 1,
-        "h_func": 100,
+        "h_func": 250,
         "h_func_obj": 250,
-        "f_mtmto": "31/07/2020"
+        "f_mtmto": "24/07/2020"
     },
     {
         "id": 3,

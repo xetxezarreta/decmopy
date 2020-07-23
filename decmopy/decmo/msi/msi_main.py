@@ -51,7 +51,7 @@ def main(argv):
          if (flow_obj <= sol_flow) and (vars not in final_solutions):
             final_solutions.append(vars)
             sol_consumption = speeds_to_consumption(vars)      
-            sol_changes = solution_changes(problem.compressors, r)
+            sol_changes = solution_changes(problem.compressors, vars)
             sol_distribution = ["%.2f" % i.avg_useful_life for i in problem.compressors]
             print(vars, \
                "| Caudal:", str(sol_flow), \

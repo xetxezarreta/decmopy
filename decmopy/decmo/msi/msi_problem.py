@@ -19,7 +19,7 @@ class MSI(IntegerProblem):
       self.upper_bound = []
 
    def evaluate(self, solution: IntegerSolution) -> IntegerSolution:      
-      variables = solution.variables
+      variables = [int(round(i)) for i in solution.variables]
 
       # obj1: Minimizar la suma de los consumos de todos los compresores
       consumption = 0
@@ -56,7 +56,7 @@ class MSI(IntegerProblem):
       Every constraint must be expressed as an unequality of type expression >=0.0. 
       When expression < 0.0 then it is considered as a constraint violation
       '''
-      variables = solution.variables
+      variables = [int(round(i)) for i in solution.variables]
       # constrain 1: caudal igual o superior al indicado
       solution_flow = sum([speed_to_flow(i) for i in variables])
       flow_diff = solution_flow - self.flow_obj
