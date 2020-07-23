@@ -22,7 +22,7 @@
     {
         "id": 3,
         "variable_speed": true,
-        "speed": 2,
+        "speed": 1,
         "min_speed": 0,
         "max_speed": 5,
         "h_func": 100,
@@ -32,7 +32,7 @@
     {
         "id": 4,
         "variable_speed": true,
-        "speed": 2,
+        "speed": 1,
         "min_speed": 0,
         "max_speed": 5,
         "h_func": 100,

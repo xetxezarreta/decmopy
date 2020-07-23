@@ -46,8 +46,8 @@ class Compressor(object):
         id: int,
         variable_speed: bool,
         speed: int,
-        max_speed: int,
         min_speed: int,
+        max_speed: int,
         h_func: float,
         h_func_obj: float,
         f_mtmto: str,
@@ -55,8 +55,8 @@ class Compressor(object):
         self.id = id
         self.variable_speed = variable_speed
         self.speed = speed
-        self.max_speed = max_speed
         self.min_speed = min_speed
+        self.max_speed = max_speed
         self.h_func = h_func
         self.h_func_obj = h_func_obj
         self.f_mtmto = f_mtmto = time.mktime(datetime.datetime.strptime(f_mtmto, '%d/%m/%Y').timetuple())
