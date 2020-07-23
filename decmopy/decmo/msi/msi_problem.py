@@ -3,13 +3,13 @@ import statistics, random
 from jmetal.core.problem import IntegerProblem
 from jmetal.core.solution import IntegerSolution
 
-from msi_compressor import Compressor, speed_to_caudal, speed_to_consumption
+from msi_compressor import Compressor, speed_to_flow, speed_to_consumption
 
 class MSI(IntegerProblem):
-   def __init__(self, caudal_obj: float):
+   def __init__(self, flow_obj: float):
       super(MSI, self).__init__()
 
-      self.caudal_obj = caudal_obj
+      self.flow_obj = flow_obj
 
       self.compressors = []
       self.number_of_variables = 0
@@ -58,9 +58,9 @@ class MSI(IntegerProblem):
       '''
       variables = solution.variables
       # constrain 1: caudal igual o superior al indicado
-      sol_caudal = sum([speed_to_caudal(i) for i in variables])
-      diff_caudal = sol_caudal - self.caudal_obj
-      solution.constraints[0] = diff_caudal
+      solution_flow = sum([speed_to_flow(i) for i in variables])
+      flow_diff = solution_flow - self.flow_obj
+      solution.constraints[0] = flow_diff
 
       # constrain 2: al menos un compresor variable en marcha
       var_running = -1
