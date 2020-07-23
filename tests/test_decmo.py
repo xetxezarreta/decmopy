@@ -2,18 +2,27 @@ from jmetal.problem import ZDT1
 from jmetal.problem.multiobjective import dtlz, zdt
 from jmetal.util.solution import read_solutions
 
-from decmo2 import DECMO2
+from decmopy import DECMO
+
+"""
+def create_problem(problem):
+    p = problem()
+    p.reference_front = read_solutions(
+        filename="./decmopy/resources/" + p.__class__.__name__ + ".pf"
+    )
+    return p
+"""
 
 
 def main():
     problems = [
-        # dtlz.DTLZ1()
-        # dtlz.DTLZ3()
+        # ZTD
+        # create_problem(zdt.ZDT1)
         zdt.ZDT1()
     ]
 
     for problem in problems:
-        algorithm = DECMO2(problem, max_evaluations=25000)
+        algorithm = DECMO(problem, max_iterations=250)
         result = algorithm.run()
         print(f"Algorithm: ${algorithm.get_name()}")
         print(f"Problem: ${problem.get_name()}")

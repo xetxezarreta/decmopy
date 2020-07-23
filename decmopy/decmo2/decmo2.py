@@ -21,9 +21,9 @@ from jmetal.operator import (
 )
 from jmetal.operator.selection import DifferentialEvolutionSelection
 
-from drec import DirectionRec
-from dgen import DistribGen
-from crec import CompRec
+from .drec import DirectionRec
+from .dgen import DistribGen
+from .crec import CompRec
 
 
 S = TypeVar("S")
