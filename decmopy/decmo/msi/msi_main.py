@@ -53,7 +53,12 @@ def main(argv):
             sol_consumption = speeds_to_consumption(vars)      
             sol_changes = solution_changes(problem.compressors, r)
             sol_distribution = ["%.2f" % i.avg_useful_life for i in problem.compressors]
-            print(vars, "Caudal:", str(sol_flow), "Consumo:", str(sol_consumption), "Cambios:", str(sol_changes), "Distribución (horas):", sol_distribution)             
+            print(vars, \
+               "| Caudal:", str(sol_flow), \
+               "| Consumo:", str(sol_consumption), \
+               "| Cambios:", str(sol_changes), \
+               "| Vida Útil Promedio:", sol_distribution \
+            )             
             
       if len(final_solutions) == 0:
          print("No hay soluciones para el caudal objetivo " + str(flow_obj))      
@@ -62,4 +67,4 @@ def main(argv):
       print(e)
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+   main(sys.argv[1:])

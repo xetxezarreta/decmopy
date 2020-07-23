@@ -1,4 +1,4 @@
-import time, datetime
+from datetime import datetime
 from typing import List
 
 def speed_to_flow(speed: int):
@@ -59,8 +59,8 @@ class Compressor(object):
         self.max_speed = max_speed
         self.h_func = h_func
         self.h_func_obj = h_func_obj
-        self.f_mtmto = f_mtmto = time.mktime(datetime.datetime.strptime(f_mtmto, '%d/%m/%Y').timetuple())
+        self.f_mtmto = datetime.strptime(f_mtmto, "%d/%m/%Y")
         self.flow = speed_to_flow(speed) # Caudal en m3 de aire que da el Compresor a una velocidad determinada.
         self.consumption = speed_to_consumption(speed) # Consumo del compresor (Kw/m3 aire).
-        self.avg_useful_life = (h_func_obj - h_func) / (self.f_mtmto - time.time())
+        self.avg_useful_life = (h_func_obj - h_func) / ((self.f_mtmto - datetime.now()).total_seconds() / 3600)
         
