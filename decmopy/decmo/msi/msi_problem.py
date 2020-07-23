@@ -14,7 +14,7 @@ class MSI(IntegerProblem):
       self.compressors = []
       self.number_of_variables = 0
       self.number_of_objectives = 3
-      self.number_of_constraints = 2
+      self.number_of_constraints = 3
       self.lower_bound = []
       self.upper_bound = []
 
@@ -69,7 +69,15 @@ class MSI(IntegerProblem):
             var_running = 1
             break     
       solution.constraints[1] = var_running
-      
+
+      # constrain 3: no puede utilizarse un compresor con f_mtmto-hoy=<0
+      mantainance = 1
+      for i, speed in enumerate(variables):
+         if speed != 0 and self.compressors[i].avg_useful_life <= 0:
+            mantainance = -1
+            break
+      solution.constraints[2] = mantainance
+
    def create_solution(self) -> IntegerSolution:
       new_solution = IntegerSolution(
          self.lower_bound,
