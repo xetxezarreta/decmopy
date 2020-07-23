@@ -13,17 +13,17 @@ pip install -r requirements.txt
 ```bash
 git clone https://github.com/xetxezarreta/decmopy.git
 cd decmopy
-python decmopy/decmo/test_decmo.py
+python decmopy/examples/test_decmo.py
 ```
 ##### DECMO2
 ```bash
 git clone https://github.com/xetxezarreta/decmopy.git
 cd decmopy
-python decmopy/decmo2/test_decmo2.py
+python decmopy/examples/test_decmo2.py
 ```
 #### MSI
 ```bash
 git clone https://github.com/xetxezarreta/decmopy.git
 cd decmopy/decmopy/decmo/msi
-python msi_main.py <caudal_consigna> <data_path>
+python msi_main.py <caudal_consigna> <data_path_json>
 ```
