@@ -8,6 +8,8 @@ from msi_compressor import (
 )
 from msi_problem import MSI
 from decmo_integer import DECMO
+from msi_plot import plot_front
+
 
 # python msi_integer.py <caudal_consigna> <data_path>
 # python msi_integer.py 100 ./data.csv
@@ -34,6 +36,7 @@ def main(argv):
       
       algorithm = DECMO(problem, individual_population_size=25, max_iterations=250)
       results = algorithm.run()
+      plot_front(results)
 
       print(f"Algorithm: ${algorithm.get_name()}")
       print(f"Problem: ${problem.get_name()}")
