@@ -52,7 +52,7 @@ class MSI(IntegerProblem):
    def __evaluate_constrains(self, solution: IntegerSolution) -> None:
       '''
       Every constraint must be expressed as an unequality of type expression >=0.0. 
-      When expression < 0.0 then it is considered as a constraint violation
+      When expression < 0.0 then it is considered as a constraint violation.
       '''
       variables = [int(round(i)) for i in solution.variables]
       # constrain 1: caudal igual o superior al indicado

@@ -1,0 +1,50 @@
+[
+    {
+        "id": 1,
+        "variable_speed": false,
+        "speed": 1,
+        "min_speed": 0,
+        "max_speed": 1,
+        "h_func": 100,
+        "h_func_obj": 250,
+        "f_mtmto": "31/07/2020",
+        "rel_velocidad_caudal": [],
+        "rel_velocidad_consumo": []
+    },
+    {
+        "id": 2,
+        "variable_speed": false,
+        "speed": 1,
+        "min_speed": 0,
+        "max_speed": 1,
+        "h_func": 100,
+        "h_func_obj": 250,
+        "f_mtmto": "31/07/2020",
+        "rel_velocidad_caudal": [],
+        "rel_velocidad_consumo": []
+    },
+    {
+        "id": 3,
+        "variable_speed": true,
+        "speed": 1,
+        "min_speed": 0,
+        "max_speed": 5,
+        "h_func": 100,
+        "h_func_obj": 250,
+        "f_mtmto": "31/07/2020",
+        "rel_velocidad_caudal": [],
+        "rel_velocidad_consumo": []
+    },
+    {
+        "id": 4,
+        "variable_speed": true,
+        "speed": 1,
+        "min_speed": 0,
+        "max_speed": 5,
+        "h_func": 100,
+        "h_func_obj": 250,
+        "f_mtmto": "31/07/2020",
+        "rel_velocidad_caudal": [],
+        "rel_velocidad_consumo": []
+    }
+]
