@@ -34,7 +34,7 @@ def main(argv):
          )
          problem.add_compressor(comp)
       
-      algorithm = DECMO(problem, individual_population_size=25, max_iterations=250)
+      algorithm = DECMO(problem, individual_population_size=50, max_iterations=250)
       results = algorithm.run()
       plot_front(results)
 
