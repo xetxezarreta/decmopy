@@ -26,22 +26,6 @@ def solution_changes(compressors, speeds: List[int]):
             changes += 1
     return changes
 
-class Compressor1(object):
-    def __init__(self, compressor_json):
-        print(type(compressor_json))
-        self.id = compressor_json["id"]
-        self.variable_speed = compressor_json["variable_speed"]
-        self.speed = compressor_json["speed"]
-        self.min_speed = compressor_json["min_speed"]
-        self.max_speed = compressor_json["max_speed"]
-        self.h_func = compressor_json["h_func"]
-        self.h_func_obj = compressor_json["h_func_obj"]
-        self.f_mtmto = datetime.strptime(compressor_json["f_mtmto"], "%d/%m/%Y")
-        self.flow = speed_to_flow(self.speed) # Caudal en m3 de aire que da el Compresor a una velocidad determinada.
-        self.consumption = speed_to_consumption(self.speed) # Consumo del compresor (Kw/m3 aire).
-        self.avg_useful_life = (self.h_func_obj - self.h_func) / ((self.f_mtmto - datetime.now()).total_seconds() / 3600)
-
-
 class Compressor(object):
     """Compresor.
 
