@@ -1,4 +1,4 @@
-import statistics, random
+import random
 
 from jmetal.core.problem import IntegerProblem
 from jmetal.core.solution import IntegerSolution
@@ -32,13 +32,11 @@ class MSI(IntegerProblem):
       avg_useful_life = []
       for i, speed in enumerate(variables):
          if speed != 0:
-            avg_useful_life.append(self.compressors[i].avg_useful_life) 
+            avg_useful_life.append(self.compressors[i].avg_useful_life)     
       if len(avg_useful_life) == 0:
          solution.objectives[1] = 0
-      elif len(avg_useful_life) == 1:
-         solution.objectives[1] = -1 * avg_useful_life[0]
       else:
-         solution.objectives[1] = -1 * statistics.mean(avg_useful_life)
+         solution.objectives[1] = -1 * sum(avg_useful_life) / len(avg_useful_life)
 
       # obj3: Minimizar Cambios desde la solucion anterior (encendido/apagado)
       changes = 0
