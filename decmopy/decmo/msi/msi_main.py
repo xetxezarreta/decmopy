@@ -34,12 +34,14 @@ def main(argv):
       
       algorithm = DECMO(problem, individual_population_size=50, max_iterations=250)
       results = algorithm.run()
-      #plot_front(results)
+      plot_front(results)
 
+      print("-----------------------------------------------")
+      print("INFORMACIÓN")
+      print("-----------------------------------------------")
       print(f"Algorithm: ${algorithm.get_name()}")
       print(f"Problem: ${problem.get_name()}")
       print(f"Final non-dominted solution set size: ${len(results)}")    
-
       print("-----------------------------------------------")
       print("SOLUCIONES")
       print("-----------------------------------------------")
