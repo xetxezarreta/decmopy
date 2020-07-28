@@ -1,30 +1,7 @@
 from datetime import datetime
 from typing import List
 
-def speed_to_flow(speed: int):
-    return speed * 20
-
-def speeds_to_flow(speeds: List[int]):
-    flow = 0
-    for s in speeds:
-        flow += speed_to_flow(s)
-    return flow
-
-def speed_to_consumption(speed: int):
-    return speed * 10
-
-def speeds_to_consumption(speeds: List[int]):
-    consumption = 0
-    for s in speeds:
-        consumption += speed_to_consumption(s)
-    return consumption
-
-def solution_changes(compressors, speeds: List[int]):
-    changes = 0
-    for i, speed in enumerate(speeds):
-        if (speed != compressors[i].speed) and (speed == 0 or compressors[i].speed == 0):
-            changes += 1
-    return changes
+from msi_utils import speed_to_flow, speed_to_consumption
 
 class Compressor(object):
     """Compresor.
@@ -50,6 +27,8 @@ class Compressor(object):
         h_func: float,
         h_func_obj: float,
         f_mtmto: str,
+        rel_velocidad_caudal: List[List[float]],
+        rel_velocidad_consumo: List[List[float]],
     ):
         self.id = id
         self.variable_speed = variable_speed
@@ -59,7 +38,9 @@ class Compressor(object):
         self.h_func = h_func
         self.h_func_obj = h_func_obj
         self.f_mtmto = datetime.strptime(f_mtmto, "%d/%m/%Y")
-        self.flow = speed_to_flow(speed) # Caudal en m3 de aire que da el Compresor a una velocidad determinada.
-        self.consumption = speed_to_consumption(speed) # Consumo del compresor (Kw/m3 aire).
+        self.rel_velocidad_caudal = rel_velocidad_caudal
+        self.rel_velocidad_consumo = rel_velocidad_consumo
+
+        self.flow = speed_to_flow(speed, rel_velocidad_caudal) # Caudal en m3 de aire que da el Compresor a una velocidad determinada.
+        self.consumption = speed_to_consumption(speed, rel_velocidad_consumo) # Consumo del compresor (Kw/m3 aire).
         self.avg_useful_life = (h_func_obj - h_func) / ((self.f_mtmto - datetime.now()).total_seconds() / 3600)
-        

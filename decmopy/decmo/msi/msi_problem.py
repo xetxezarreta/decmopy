@@ -3,7 +3,8 @@ import random
 from jmetal.core.problem import IntegerProblem
 from jmetal.core.solution import IntegerSolution
 
-from msi_compressor import Compressor, speed_to_flow, speed_to_consumption
+from msi_compressor import Compressor
+from msi_utils import speeds_to_flow, speeds_to_consumption, solution_changes
 
 class MSI(IntegerProblem):
    def __init__(self, flow_obj: float):
@@ -22,10 +23,7 @@ class MSI(IntegerProblem):
       variables = [int(round(i)) for i in solution.variables]
 
       # obj1: Minimizar la suma de los consumos de todos los compresores
-      consumption = 0
-      for speed in variables:
-         if speed != 0:
-            consumption += speed_to_consumption(speed)
+      consumption = speeds_to_consumption(variables, self.compressors)
       solution.objectives[0] = consumption
 
       # obj2: Maximizar la distribución de horas de funcionamiento 
@@ -39,10 +37,7 @@ class MSI(IntegerProblem):
          solution.objectives[1] = -1 * sum(avg_useful_life) / len(avg_useful_life)
 
       # obj3: Minimizar Cambios desde la solucion anterior (encendido/apagado)
-      changes = 0
-      for i, speed in enumerate(variables):
-         if (speed != self.compressors[i].speed) and (speed == 0 or self.compressors[i].speed == 0):
-            changes += 1
+      changes = solution_changes(variables, self.compressors)
       solution.objectives[2] = changes  
 
       self.__evaluate_constrains(solution)
@@ -56,7 +51,7 @@ class MSI(IntegerProblem):
       '''
       variables = [int(round(i)) for i in solution.variables]
       # constrain 1: caudal igual o superior al indicado
-      solution_flow = sum([speed_to_flow(i) for i in variables])
+      solution_flow = speeds_to_flow(variables, self.compressors)
       flow_diff = solution_flow - self.flow_obj
       solution.constraints[0] = flow_diff
 

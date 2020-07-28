@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "args": ["100", "decmopy/decmo/msi/data.json"]
+            "args": ["60", "decmopy/decmo/msi/data.json"]
         }
     ]
 }

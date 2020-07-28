@@ -1,11 +1,7 @@
 import sys, json
 
-from msi_compressor import (
-   Compressor, 
-   speeds_to_flow, 
-   speeds_to_consumption, 
-   solution_changes
-)
+from msi_compressor import Compressor
+from msi_utils import  speeds_to_flow, speeds_to_consumption, solution_changes
 from msi_problem import MSI
 from decmo_integer import DECMO
 from msi_plot import plot_front
@@ -30,13 +26,15 @@ def main(argv):
             i["max_speed"], 
             i["h_func"], 
             i["h_func_obj"], 
-            i["f_mtmto"]
+            i["f_mtmto"],
+            i["rel_velocidad_caudal"],
+            i["rel_velocidad_consumo"]
          )
          problem.add_compressor(comp)
       
       algorithm = DECMO(problem, individual_population_size=50, max_iterations=250)
       results = algorithm.run()
-      plot_front(results)
+      #plot_front(results)
 
       print(f"Algorithm: ${algorithm.get_name()}")
       print(f"Problem: ${problem.get_name()}")
@@ -50,11 +48,10 @@ def main(argv):
 
       for r in results:
          vars = [int(round(i)) for i in r.variables]
-         sol_flow = speeds_to_flow(vars)
+         sol_flow = speeds_to_flow(vars, problem.compressors)
          if (flow_obj <= sol_flow) and (vars not in final_solutions):
-            final_solutions.append(vars)
-            sol_consumption = speeds_to_consumption(vars)      
-            sol_changes = solution_changes(problem.compressors, vars)
+            sol_consumption = speeds_to_consumption(vars, problem.compressors)      
+            sol_changes = solution_changes(vars, problem.compressors)
             sol_distribution = ["%.2f" % i.avg_useful_life for i in problem.compressors]
             print(vars, \
                "| Caudal:", str(sol_flow), \
@@ -62,6 +59,7 @@ def main(argv):
                "| Cambios:", str(sol_changes), \
                "| Vida Útil Promedio:", sol_distribution \
             )             
+            final_solutions.append(vars)
             
       if len(final_solutions) == 0:
          print("No hay soluciones para el caudal objetivo " + str(flow_obj))      
