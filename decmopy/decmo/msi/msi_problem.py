@@ -19,6 +19,10 @@ class MSI(IntegerProblem):
       self.lower_bound = []
       self.upper_bound = []
 
+      self.obj_directions = [self.MINIMIZE, self.MAXIMIZE, self.MINIMIZE]
+      self.obj_labels = ['Consumo', 'Distribución Horas', 'Cambios']
+      
+
    def evaluate(self, solution: IntegerSolution) -> IntegerSolution:      
       variables = [int(round(i)) for i in solution.variables]
 
