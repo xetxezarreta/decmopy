@@ -9,19 +9,15 @@ from msi_utils import speeds_to_flow, speeds_to_consumption, solution_changes
 class MSI(IntegerProblem):
    def __init__(self, flow_obj: float):
       super(MSI, self).__init__()
-
       self.flow_obj = flow_obj
-
       self.compressors = []
       self.number_of_variables = 0
       self.number_of_objectives = 3
       self.number_of_constraints = 3
       self.lower_bound = []
       self.upper_bound = []
-
       self.obj_directions = [self.MINIMIZE, self.MAXIMIZE, self.MINIMIZE]
-      self.obj_labels = ['Consumo', 'Distribución Horas', 'Cambios']
-      
+      self.obj_labels = ['Consumo', 'Distribución Horas', 'Cambios']      
 
    def evaluate(self, solution: IntegerSolution) -> IntegerSolution:      
       variables = [int(round(i)) for i in solution.variables]
@@ -44,6 +40,7 @@ class MSI(IntegerProblem):
       changes = solution_changes(variables, self.compressors)
       solution.objectives[2] = changes  
 
+      # Aplicar restricciones
       self.__evaluate_constrains(solution)
 
       return solution 
