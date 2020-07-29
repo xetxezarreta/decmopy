@@ -59,7 +59,7 @@ def main(argv):
                "| Caudal:", str(sol_flow), \
                "| Consumo:", str(sol_consumption), \
                "| Cambios:", str(sol_changes), \
-               "| Vida Útil Promedio:", sol_distribution \
+               "| Relación tiempo de uso restante vs. tiempo hasta mantenimiento restante:", sol_distribution \
             )             
             final_solutions.append(vars)
             
