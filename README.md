@@ -9,7 +9,7 @@ Python implementation of DECMO algorithms inside the JMetalPy 1.5.5 framework.
 pip install decmopy
 ```
 
-## DECMO Usage
+## DECMO
 ```python
 from jmetal.problem import ZDT1
 from decmopy import DECMO_FLOAT
@@ -27,7 +27,7 @@ if __name__ == "__main__":
     main()
 ```
 
-## DECMO2 Usage
+## DECMO2
 ```python
 from jmetal.problem import ZDT1
 from decmopy import DECMO2
