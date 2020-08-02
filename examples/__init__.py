@@ -1,2 +1,0 @@
-# set PYTHONPATH=.
-# export PYTHONPATH=.

@@ -2,7 +2,7 @@ from jmetal.problem import ZDT1
 from jmetal.problem.multiobjective import dtlz, zdt
 from jmetal.util.solution import read_solutions
 
-from decmopy import DECMO
+from decmopy import DECMO_FLOAT
 
 """
 def create_problem(problem):
@@ -22,7 +22,7 @@ def main():
     ]
 
     for problem in problems:
-        algorithm = DECMO(problem, max_iterations=250)
+        algorithm = DECMO_FLOAT(problem, max_iterations=250)
         result = algorithm.run()
         print(f"Algorithm: ${algorithm.get_name()}")
         print(f"Problem: ${problem.get_name()}")

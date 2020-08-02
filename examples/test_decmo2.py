@@ -2,7 +2,7 @@ from jmetal.problem import ZDT1
 from jmetal.problem.multiobjective import dtlz, zdt
 from jmetal.util.solution import read_solutions
 
-from decmopy import DECMO2
+from decmopy.decmo2 import DECMO2
 
 
 def main():

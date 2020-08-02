@@ -12,12 +12,12 @@ pip install decmopy
 ## DECMO Usage
 ```python
 from jmetal.problem import ZDT1
-from decmopy import DECMO
+from decmopy import DECMO_FLOAT
 
 def main():
     problem = ZDT1()
 
-    algorithm = DECMO(problem, max_iterations=250)
+    algorithm = DECMO_FLOAT(problem, max_iterations=250)
     result = algorithm.run()
     print(f"Algorithm: ${algorithm.get_name()}")
     print(f"Problem: ${problem.get_name()}")

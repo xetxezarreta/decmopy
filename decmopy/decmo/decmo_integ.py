@@ -27,7 +27,7 @@ S = TypeVar("S")
 R = TypeVar("R")
 
 
-class DECMO(Algorithm[S, R]):
+class DECMO_INTEG(Algorithm[S, R]):
     def __init__(
         self,
         problem: Problem,

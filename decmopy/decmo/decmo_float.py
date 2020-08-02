@@ -26,7 +26,7 @@ S = TypeVar("S")
 R = TypeVar("R")
 
 
-class DECMO(Algorithm[S, R]):
+class DECMO_FLOAT(Algorithm[S, R]):
     def __init__(
         self,
         problem: Problem,
