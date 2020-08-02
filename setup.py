@@ -5,11 +5,12 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="decmopy",
-    version="1.0",
+    version="0.2",
     author="Xabier Etxezarreta",
     description="Python implementation of DECMO algorithms inside the JMetalPy framework",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/xetxezarreta/decmopy",
-    packages=setuptools.find_packages(),
+    packages=["decmopy"],
+    install_requires=["jmetalpy==1.5.5"]
 )
