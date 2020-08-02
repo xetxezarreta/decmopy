@@ -6,24 +6,41 @@ Python implementation of DECMO algorithms inside the JMetalPy 1.5.5 framework.
 
 ## Installation
 ```bash
-pip install -r requirements.txt
+pip install decmopy
 ```
-## Run
-##### DECMO
-```bash
-git clone https://github.com/xetxezarreta/decmopy.git
-cd decmopy
-python decmopy/examples/test_decmo.py
+
+## DECMO Usage
+```python
+from jmetal.problem import ZDT1
+from decmopy import DECMO
+
+def main():
+    problem = ZDT1()
+
+    algorithm = DECMO(problem, max_iterations=250)
+    result = algorithm.run()
+    print(f"Algorithm: ${algorithm.get_name()}")
+    print(f"Problem: ${problem.get_name()}")
+    print(f"Final non-dominted solution set size: ${len(result)}")
+
+if __name__ == "__main__":
+    main()
 ```
-##### DECMO2
-```bash
-git clone https://github.com/xetxezarreta/decmopy.git
-cd decmopy
-python decmopy/examples/test_decmo2.py
-```
-#### MSI
-```bash
-git clone https://github.com/xetxezarreta/decmopy.git
-cd decmopy/decmopy/decmo/msi
-python msi_main.py <caudal_consigna> <data_path_json>
+
+## DECMO2 Usage
+```python
+from jmetal.problem import ZDT1
+from decmopy import DECMO2
+
+def main():
+    problem = ZDT1()
+
+    algorithm = DECMO2(problem, max_iterations=250)
+    result = algorithm.run()
+    print(f"Algorithm: ${algorithm.get_name()}")
+    print(f"Problem: ${problem.get_name()}")
+    print(f"Final non-dominted solution set size: ${len(result)}")
+
+if __name__ == "__main__":
+    main()
 ```
