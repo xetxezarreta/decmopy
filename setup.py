@@ -12,5 +12,5 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/xetxezarreta/decmopy",
     packages=setuptools.find_packages(),
-    install_requires=["jmetalpy==1.5.5"]
+    install_requires=["jmetalpy==1.5.5"],
 )

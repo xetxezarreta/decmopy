@@ -1,4 +1,4 @@
-settings.json
+.vscode
 __pycache__/
 jmetalpy.log
 docs
